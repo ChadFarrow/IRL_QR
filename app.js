@@ -1,9 +1,11 @@
 const LIGHTNING_ADDRESS = 'chadf@fountain.fm';
 const USD_AMOUNT = 5.00;
+const FEED_POLL_INTERVAL = 30000;
 
 const statusEl = document.getElementById('status');
 const qrcodeEl = document.getElementById('qrcode');
 const refreshBtn = document.getElementById('refresh');
+const boostFeedEl = document.getElementById('boost-feed');
 
 async function getBtcPrice() {
     const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
@@ -81,6 +83,9 @@ async function generateInvoice() {
 
         statusEl.style.display = 'none';
 
+        // Store boost metadata via proxy
+        storeBoostMetadata(msats, sats);
+
     } catch (error) {
         console.error('Error:', error);
         statusEl.textContent = error.message || 'Failed to generate invoice';
@@ -101,5 +106,83 @@ modal.addEventListener('click', (e) => {
     if (e.target === modal) modal.classList.remove('active');
 });
 
+// Boost metadata
+async function storeBoostMetadata(msats, sats) {
+    try {
+        const metadata = {
+            action: 'boost',
+            value_msat: msats,
+            value_msat_total: msats,
+            app_name: 'So Big Lightning Payment',
+            sender_name: 'IRL QR',
+            recipient_name: 'chadf',
+            recipient_address: LIGHTNING_ADDRESS,
+            message: `$${USD_AMOUNT.toFixed(2)} Lightning payment via IRL QR`,
+            timestamp: new Date().toISOString(),
+        };
+        await fetch('/api/boost', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(metadata),
+        });
+    } catch (error) {
+        console.error('Failed to store boost metadata:', error);
+    }
+}
+
+// Payment feed
+function formatSats(msats) {
+    const sats = Math.round(msats / 1000);
+    return sats.toLocaleString() + ' sats';
+}
+
+function timeAgo(timestamp) {
+    const seconds = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
+    if (seconds < 60) return 'just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return minutes + 'm ago';
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours + 'h ago';
+    const days = Math.floor(hours / 24);
+    return days + 'd ago';
+}
+
+function renderBoostFeed(boosts) {
+    if (!boosts || boosts.length === 0) {
+        boostFeedEl.innerHTML = '<div class="feed-empty">No payments yet</div>';
+        return;
+    }
+
+    boostFeedEl.innerHTML = boosts.map(boost => `
+        <div class="boost-item">
+            <div class="boost-header">
+                <span class="boost-sender">${escapeHtml(boost.sender_name || 'Anonymous')}</span>
+                <span class="boost-amount">${formatSats(boost.value_msat || 0)}</span>
+            </div>
+            ${boost.message ? `<div class="boost-message">${escapeHtml(boost.message)}</div>` : ''}
+            ${boost.timestamp ? `<div class="boost-time">${timeAgo(boost.timestamp)}</div>` : ''}
+        </div>
+    `).join('');
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+async function loadBoostFeed() {
+    try {
+        const response = await fetch('/api/boosts');
+        if (!response.ok) return;
+        const boosts = await response.json();
+        renderBoostFeed(boosts);
+    } catch (error) {
+        console.error('Failed to load boost feed:', error);
+    }
+}
+
 // Generate invoice on page load
 generateInvoice();
+loadBoostFeed();
+setInterval(loadBoostFeed, FEED_POLL_INTERVAL);

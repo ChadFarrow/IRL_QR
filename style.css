@@ -201,6 +201,76 @@ body {
     color: white;
 }
 
+.feed-container {
+    width: 100%;
+    max-width: 360px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.feed-title {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.boost-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.feed-loading, .feed-empty {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    text-align: center;
+    padding: 20px;
+}
+
+.boost-item {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 12px 14px;
+    backdrop-filter: blur(6px);
+}
+
+.boost-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.boost-sender {
+    color: #f7931a;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.boost-amount {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.boost-message {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.boost-time {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 11px;
+    margin-top: 4px;
+}
+
 @media (max-width: 400px) {
     body {
         padding-top: 10vh;
