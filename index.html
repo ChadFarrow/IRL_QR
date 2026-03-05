@@ -12,28 +12,13 @@
     <div class="qr-container">
         <div id="qrcode"></div>
         <div class="lightning-address">chadf@fountain.fm</div>
-        <div class="amount-row">
-            <span class="amount-prefix">$</span>
-            <input id="amount-input" class="amount-input" type="number" min="1" step="0.01" value="5.00" inputmode="decimal">
-            <button id="info-btn" class="info-btn">i</button>
-        </div>
-        <div class="status" id="status">Enter an amount and generate invoice</div>
-        <button id="refresh" class="refresh-btn">Generate Invoice</button>
-        <a href="guide.html" class="guide-link">How to Pay with CashApp →</a>
+        <div class="scan-hint">Scan to send any amount</div>
     </div>
 
     <div class="feed-container">
         <h2 class="feed-title">Recent Payments</h2>
         <div id="boost-feed" class="boost-feed">
             <div class="feed-loading">Loading payments...</div>
-        </div>
-    </div>
-
-    <div id="info-modal" class="modal">
-        <div class="modal-content">
-            <button id="close-modal" class="close-btn">&times;</button>
-            <p>Enter any USD amount to generate a Lightning invoice.</p>
-            <p>CashApp requires a $1 minimum for Lightning payments. The invoice will be converted to sats at the current BTC price.</p>
         </div>
     </div>
 
