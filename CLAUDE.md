@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A static web app that generates Bitcoin Lightning invoices for a fixed $1.25 USD payment to `sobig@fountain.fm`. Includes a step-by-step CashApp payment guide. Deployed on Vercel at https://so-big-lightning-payment.vercel.app/.
+A static web app that generates Bitcoin Lightning invoices for a fixed $1.25 USD payment to `chadf@fountain.fm`. Includes a step-by-step CashApp payment guide. Deployed on Vercel at https://so-big-lightning-payment.vercel.app/.
 
 ## Development
 
@@ -35,7 +35,7 @@ python3 -m http.server
 ## Key External Dependencies
 
 - **CoinGecko API** — BTC price (`api.coingecko.com`)
-- **Fountain.fm LNURL** — Invoice generation via `fountain.fm/.well-known/lnurlp/sobig`
+- **Fountain.fm LNURL** — Invoice generation via `fountain.fm/.well-known/lnurlp/chadf`
 - **qrcodejs** — QR rendering (CDN: `cdnjs.cloudflare.com`)
 
 ## Mobile Considerations

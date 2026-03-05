@@ -1,4 +1,4 @@
-const LIGHTNING_ADDRESS = 'sobig@fountain.fm';
+const LIGHTNING_ADDRESS = 'chadf@fountain.fm';
 const USD_AMOUNT = 1.25;
 
 const statusEl = document.getElementById('status');
