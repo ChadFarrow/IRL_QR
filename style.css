@@ -8,9 +8,10 @@ body {
     min-height: 100vh;
     min-height: 100dvh;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding-top: 20vh;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 10vh;
     padding-left: 15px;
     padding-right: 15px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -48,20 +49,11 @@ body {
     margin-top: 10px;
 }
 
-.amount-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 4px;
-    margin-bottom: 12px;
-}
-
-.amount {
-    font-size: 42px;
-    font-weight: 700;
-    color: white;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+.scan-hint {
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 8px;
 }
 
 #qrcode {
@@ -79,139 +71,83 @@ body {
     height: auto;
 }
 
-.status {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 10px;
-}
-
-.status.error {
-    color: #e74c3c;
-}
-
-.status.success {
-    color: #27ae60;
-}
-
-.refresh-btn {
-    background: #f7931a;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.refresh-btn:hover {
-    background: #e8850f;
-}
-
-.guide-link {
-    display: inline-block;
-    margin-top: 15px;
-    color: rgba(255, 255, 255, 0.9);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    transition: color 0.2s;
-    padding: 8px 0;
-}
-
-.guide-link:hover {
-    color: white;
-    text-decoration: underline;
-}
-
-.info-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.6);
-    background: transparent;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 14px;
-    font-weight: 600;
-    font-style: italic;
-    font-family: Georgia, serif;
-    cursor: pointer;
-    transition: all 0.2s;
-    flex-shrink: 0;
-}
-
-.info-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: white;
-    color: white;
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
+.feed-container {
     width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 100;
-    justify-content: center;
-    align-items: center;
+    max-width: 360px;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
-.modal.active {
+.feed-title {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.boost-feed {
     display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
-.modal-content {
-    background: rgba(30, 30, 30, 0.95);
-    padding: 30px;
-    border-radius: 16px;
-    max-width: 320px;
-    margin: 20px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    position: relative;
+.feed-loading, .feed-empty {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    text-align: center;
+    padding: 20px;
 }
 
-.modal-content p {
-    color: white;
-    font-size: 15px;
-    line-height: 1.5;
-    margin-bottom: 12px;
+.boost-item {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 12px 14px;
+    backdrop-filter: blur(6px);
 }
 
-.modal-content p:last-of-type {
-    margin-bottom: 0;
+.boost-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
 }
 
-.close-btn {
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    background: transparent;
-    border: none;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 24px;
-    cursor: pointer;
-    transition: color 0.2s;
+.boost-sender {
+    color: #f7931a;
+    font-size: 13px;
+    font-weight: 600;
 }
 
-.close-btn:hover {
-    color: white;
+.boost-amount {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.boost-message {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.boost-time {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 11px;
+    margin-top: 4px;
 }
 
 @media (max-width: 400px) {
     body {
-        padding-top: 10vh;
+        padding-top: 5vh;
     }
 
     .qr-container {
         padding: 20px;
-    }
-
-    .amount {
-        font-size: 36px;
     }
 
     #qrcode img, #qrcode canvas {
