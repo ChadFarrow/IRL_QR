@@ -1,5 +1,5 @@
 const LIGHTNING_ADDRESS = 'chadf@fountain.fm';
-const USD_AMOUNT = 1.25;
+const USD_AMOUNT = 5.00;
 
 const statusEl = document.getElementById('status');
 const qrcodeEl = document.getElementById('qrcode');
