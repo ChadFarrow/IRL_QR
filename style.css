@@ -1,0 +1,227 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 20vh;
+    padding-left: 15px;
+    padding-right: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('background.jpg');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #2a2a2a;
+    z-index: -1;
+}
+
+.qr-container {
+    position: relative;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 25px;
+    text-align: center;
+    width: 100%;
+    max-width: 360px;
+    border-radius: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.lightning-address {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 10px;
+}
+
+.amount-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+}
+
+.amount {
+    font-size: 42px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+#qrcode {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+#qrcode img, #qrcode canvas {
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    background: white;
+    max-width: 100%;
+    height: auto;
+}
+
+.status {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.status.error {
+    color: #e74c3c;
+}
+
+.status.success {
+    color: #27ae60;
+}
+
+.refresh-btn {
+    background: #f7931a;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.refresh-btn:hover {
+    background: #e8850f;
+}
+
+.guide-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+    padding: 8px 0;
+}
+
+.guide-link:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+.info-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 600;
+    font-style: italic;
+    font-family: Georgia, serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.info-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: white;
+    color: white;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: rgba(30, 30, 30, 0.95);
+    padding: 30px;
+    border-radius: 16px;
+    max-width: 320px;
+    margin: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+}
+
+.modal-content p {
+    color: white;
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.modal-content p:last-of-type {
+    margin-bottom: 0;
+}
+
+.close-btn {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: white;
+}
+
+@media (max-width: 400px) {
+    body {
+        padding-top: 10vh;
+    }
+
+    .qr-container {
+        padding: 20px;
+    }
+
+    .amount {
+        font-size: 36px;
+    }
+
+    #qrcode img, #qrcode canvas {
+        max-width: 240px;
+        height: auto;
+    }
+}
+
+@media (max-height: 700px) {
+    body {
+        padding-top: 5vh;
+    }
+}

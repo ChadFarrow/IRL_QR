@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Pay - So Big CashApp Guide</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="guide.css">
+</head>
+<body>
+    <div class="background"></div>
+
+    <div class="guide-container">
+        <div class="guide-header">
+            <a href="index.html" class="back-link">← Back</a>
+            <h1>How to Pay with CashApp</h1>
+            <p class="guide-intro">Follow these simple steps to pay the Lightning invoice using CashApp on your mobile device.</p>
+        </div>
+
+        <div class="step-viewport">
+            <!-- Step 1: Open CashApp and Click $ -->
+            <div class="step active" data-step="0">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-content-wrapper">
+                        <div class="step-text">
+                            <h2>Open CashApp and Click the $ Icon</h2>
+                            <p>Open the CashApp on your mobile device. You'll see the main screen with a keypad showing "$0".</p>
+                        </div>
+                        <div class="step-image">
+                            <img src="guide-step3-payment-confirm.jpg" alt="CashApp main screen with keypad">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Scan QR Code -->
+            <div class="step" data-step="1">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-content-wrapper">
+                        <div class="step-text">
+                            <h2>Scan the QR Code</h2>
+                            <p>Click the scan QR button in the top left corner to scan the QR code displayed on <a href="https://so-big-lightning-payment.vercel.app/" target="_blank" style="color: #f7931a;">https://so-big-lightning-payment.vercel.app/</a></p>
+                        </div>
+                        <div class="step-image">
+                            <img src="guide-step2-scan-qr.png" alt="QR code to scan">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Select Funding Source -->
+            <div class="step" data-step="2">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-content-wrapper">
+                        <div class="step-text">
+                            <h2>Select Cash as Your Funding Source</h2>
+                            <p>After scanning, CashApp will ask: "How do you want to fund your $1.25 bitcoin payment?"</p>
+                            <p>Select Cash but you may see Bitcoin listed if you have any.</p>
+                        </div>
+                        <div class="step-image">
+                            <img src="guide-step1-main-screen.jpg" alt="Funding source selection screen">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Review and Confirm Payment -->
+            <div class="step" data-step="3">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <div class="step-content-wrapper">
+                        <div class="step-text">
+                            <h2>Review and Confirm Payment</h2>
+                            <p>You'll see a confirmation screen showing "Pay $1.25" with all the payment details.</p>
+                        </div>
+                        <div class="step-image">
+                            <img src="guide-step5-transaction-detail.jpg" alt="Payment confirmation screen">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Payment Success -->
+            <div class="step" data-step="4">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <div class="step-content-wrapper">
+                        <div class="step-text">
+                            <h2>Payment Successful!</h2>
+                            <p>After confirming, you'll see a success screen with a green checkmark.</p>
+                            <p>The screen will display "You paid $1.25" confirming your payment was successful.</p>
+                        </div>
+                        <div class="step-image">
+                            <img src="guide-step4-success.jpg" alt="Payment success screen">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: View Transaction History -->
+            <div class="step" data-step="5">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <div class="step-content-wrapper">
+                        <div class="step-text">
+                            <h2>View Your Payment Receipt</h2>
+                            <p>You can view the payment receipt in your transaction history. Tap the clock icon at the bottom navigation to access your Activity feed.</p>
+                        </div>
+                        <div class="step-image">
+                            <img src="guide-step2-funding-selection.jpg" alt="Activity feed screen">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7: View Transaction Details (Optional) -->
+            <div class="step" data-step="6">
+                <div class="step-number">7</div>
+                <div class="step-content">
+                    <div class="step-content-wrapper">
+                        <div class="step-text">
+                            <h2>View Transaction Details (Optional)</h2>
+                            <p>You can view detailed information about your payment by tapping on the transaction in your Activity feed.</p>
+                        </div>
+                        <div class="step-image">
+                            <img src="guide-step6-activity.jpg" alt="Transaction detail screen">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-navigation">
+            <button id="prev-btn" class="nav-btn" disabled>Previous</button>
+            <div class="step-dots">
+                <span class="step-dot active" data-step="0"></span>
+                <span class="step-dot" data-step="1"></span>
+                <span class="step-dot" data-step="2"></span>
+                <span class="step-dot" data-step="3"></span>
+                <span class="step-dot" data-step="4"></span>
+                <span class="step-dot" data-step="5"></span>
+                <span class="step-dot" data-step="6"></span>
+            </div>
+            <button id="next-btn" class="nav-btn">Next</button>
+        </div>
+
+        <div class="guide-footer">
+            <a href="index.html" class="back-to-payment">← Back to Payment</a>
+        </div>
+    </div>
+
+    <script src="guide.js"></script>
+</body>
+</html>
