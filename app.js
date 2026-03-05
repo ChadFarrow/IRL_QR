@@ -1,11 +1,17 @@
 const LIGHTNING_ADDRESS = 'chadf@fountain.fm';
-const USD_AMOUNT = 5.00;
 const FEED_POLL_INTERVAL = 30000;
 
 const statusEl = document.getElementById('status');
 const qrcodeEl = document.getElementById('qrcode');
 const refreshBtn = document.getElementById('refresh');
 const boostFeedEl = document.getElementById('boost-feed');
+const amountInput = document.getElementById('amount-input');
+
+function getUsdAmount() {
+    const val = parseFloat(amountInput.value);
+    if (isNaN(val) || val <= 0) return null;
+    return val;
+}
 
 async function getBtcPrice() {
     const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
@@ -44,6 +50,14 @@ function generateQR(invoice) {
 
 async function generateInvoice() {
     try {
+        const usdAmount = getUsdAmount();
+        if (!usdAmount) {
+            statusEl.textContent = 'Please enter a valid amount';
+            statusEl.className = 'status error';
+            statusEl.style.display = 'block';
+            return;
+        }
+
         statusEl.textContent = 'Fetching BTC price...';
         statusEl.className = 'status';
         statusEl.style.display = 'block';
@@ -53,7 +67,7 @@ async function generateInvoice() {
         const btcPrice = await getBtcPrice();
 
         // Calculate sats (1 BTC = 100,000,000 sats)
-        const btcAmount = USD_AMOUNT / btcPrice;
+        const btcAmount = usdAmount / btcPrice;
         const sats = Math.round(btcAmount * 100000000);
         const msats = sats * 1000;
 
@@ -84,7 +98,7 @@ async function generateInvoice() {
         statusEl.style.display = 'none';
 
         // Store boost metadata via proxy
-        storeBoostMetadata(msats, sats);
+        storeBoostMetadata(msats, sats, usdAmount);
 
     } catch (error) {
         console.error('Error:', error);
@@ -107,7 +121,7 @@ modal.addEventListener('click', (e) => {
 });
 
 // Boost metadata
-async function storeBoostMetadata(msats, sats) {
+async function storeBoostMetadata(msats, sats, usdAmount) {
     try {
         const metadata = {
             action: 'boost',
@@ -117,7 +131,7 @@ async function storeBoostMetadata(msats, sats) {
             sender_name: 'IRL QR',
             recipient_name: 'chadf',
             recipient_address: LIGHTNING_ADDRESS,
-            message: `$${USD_AMOUNT.toFixed(2)} Lightning payment via IRL QR`,
+            message: `$${usdAmount.toFixed(2)} Lightning payment via IRL QR`,
             timestamp: new Date().toISOString(),
         };
         await fetch('/api/boost', {
@@ -182,7 +196,11 @@ async function loadBoostFeed() {
     }
 }
 
-// Generate invoice on page load
-generateInvoice();
+// Generate invoice on Enter key
+amountInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') generateInvoice();
+});
+
+// Load feed on page load
 loadBoostFeed();
 setInterval(loadBoostFeed, FEED_POLL_INTERVAL);

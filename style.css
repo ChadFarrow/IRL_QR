@@ -57,11 +57,36 @@ body {
     margin-bottom: 12px;
 }
 
-.amount {
+.amount-prefix {
     font-size: 42px;
     font-weight: 700;
     color: white;
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.amount-input {
+    font-size: 42px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+    text-align: center;
+    width: 140px;
+    outline: none;
+    font-family: inherit;
+    -moz-appearance: textfield;
+}
+
+.amount-input:focus {
+    border-bottom-color: #f7931a;
+}
+
+.amount-input::-webkit-outer-spin-button,
+.amount-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 #qrcode {
@@ -280,8 +305,12 @@ body {
         padding: 20px;
     }
 
-    .amount {
+    .amount-prefix, .amount-input {
         font-size: 36px;
+    }
+
+    .amount-input {
+        width: 120px;
     }
 
     #qrcode img, #qrcode canvas {
