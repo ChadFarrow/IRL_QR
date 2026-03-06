@@ -3,59 +3,12 @@ const FEED_POLL_INTERVAL = 10000;
 const qrcodeEl = document.getElementById('qrcode');
 const paymentFeedEl = document.getElementById('boost-feed');
 
-// Bech32 LNURL encoding
-function bech32Encode(url) {
-    const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
-    function polymod(values) {
-        const GEN = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
-        let chk = 1;
-        for (const v of values) {
-            const b = chk >> 25;
-            chk = ((chk & 0x1ffffff) << 5) ^ v;
-            for (let i = 0; i < 5; i++) if ((b >> i) & 1) chk ^= GEN[i];
-        }
-        return chk;
-    }
-    function hrpExpand(hrp) {
-        const ret = [];
-        for (let i = 0; i < hrp.length; i++) ret.push(hrp.charCodeAt(i) >> 5);
-        ret.push(0);
-        for (let i = 0; i < hrp.length; i++) ret.push(hrp.charCodeAt(i) & 31);
-        return ret;
-    }
-    function createChecksum(hrp, data) {
-        const values = hrpExpand(hrp).concat(data).concat([0, 0, 0, 0, 0, 0]);
-        const mod = polymod(values) ^ 1;
-        const ret = [];
-        for (let i = 0; i < 6; i++) ret.push((mod >> (5 * (5 - i))) & 31);
-        return ret;
-    }
-    // Convert 8-bit bytes to 5-bit words
-    const bytes = new TextEncoder().encode(url);
-    const words = [];
-    let acc = 0, bits = 0;
-    for (const b of bytes) {
-        acc = (acc << 8) | b;
-        bits += 8;
-        while (bits >= 5) {
-            bits -= 5;
-            words.push((acc >> bits) & 31);
-        }
-    }
-    if (bits > 0) words.push((acc << (5 - bits)) & 31);
-
-    const checksum = createChecksum('lnurl', words);
-    let result = 'lnurl1';
-    for (const w of words.concat(checksum)) result += CHARSET[w];
-    return result.toUpperCase();
-}
-
-// LNURL-pay QR pointing to our API which generates invoices via NWC
+// Lightning address QR — wallet resolves via /.well-known/lnurlp/ on our domain
 function generateStaticQR() {
-    const lnurlPayUrl = `${window.location.origin}/api/lnurlp`;
-    const lnurl = bech32Encode(lnurlPayUrl);
+    const domain = window.location.hostname;
+    const lightningAddress = `sxworldwide@${domain}`;
     new QRCode(qrcodeEl, {
-        text: lnurl,
+        text: `lightning:${lightningAddress}`,
         width: 700,
         height: 700,
         colorDark: '#000000',
@@ -125,5 +78,6 @@ async function loadPaymentFeed() {
 
 // Init
 generateStaticQR();
+document.getElementById('lightning-address').textContent = `sxworldwide@${window.location.hostname}`;
 loadPaymentFeed();
 setInterval(loadPaymentFeed, FEED_POLL_INTERVAL);
