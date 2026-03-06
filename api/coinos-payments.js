@@ -1,21 +1,18 @@
-let authToken = null;
+import 'websocket-polyfill';
+import { NWCClient } from '@getalby/sdk/nwc';
 
-async function getToken() {
-    if (authToken) return authToken;
-
-    const res = await fetch('https://coinos.io/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            username: process.env.COINOS_USERNAME,
-            password: process.env.COINOS_PASSWORD,
-        }),
-    });
-
-    if (!res.ok) throw new Error('Coinos login failed');
-    const data = await res.json();
-    authToken = data.token;
-    return authToken;
+function parseMemo(description) {
+    if (!description) return '';
+    try {
+        const parsed = JSON.parse(description);
+        if (Array.isArray(parsed)) {
+            const textEntry = parsed.find(e => Array.isArray(e) && e[0] === 'text/plain');
+            if (textEntry) return textEntry[1] || '';
+        }
+    } catch {
+        // Not JSON, use as-is
+    }
+    return description;
 }
 
 export default async function handler(req, res) {
@@ -25,42 +22,32 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    if (!process.env.COINOS_USERNAME || !process.env.COINOS_PASSWORD) {
-        return res.status(500).json({ error: 'Missing Coinos credentials' });
+    const nwcUrl = process.env.NWC_URL;
+    if (!nwcUrl) {
+        return res.status(500).json({ error: 'Missing env var: NWC_URL' });
     }
 
+    let client;
     try {
-        const token = await getToken();
-        const response = await fetch('https://coinos.io/api/payments?limit=20', {
-            headers: { Authorization: `Bearer ${token}` },
+        client = new NWCClient({ nostrWalletConnectUrl: nwcUrl });
+        const { transactions } = await client.listTransactions({
+            type: 'incoming',
+            limit: 20,
         });
 
-        if (response.status === 401) {
-            authToken = null;
-            const newToken = await getToken();
-            const retry = await fetch('https://coinos.io/api/payments?limit=20', {
-                headers: { Authorization: `Bearer ${newToken}` },
-            });
-            const data = await retry.json();
-            return res.status(200).json({ payments: formatPayments(data) });
-        }
+        const payments = transactions
+            .filter(t => t.state === 'settled')
+            .map(t => ({
+                amount: Math.round(t.amount / 1000),
+                memo: parseMemo(t.description),
+                created: t.settled_at ? t.settled_at * 1000 : t.created_at * 1000,
+            }));
 
-        const data = await response.json();
-        return res.status(200).json({ payments: formatPayments(data) });
+        return res.status(200).json({ payments });
     } catch (error) {
-        console.error('Coinos payments error:', error.message);
+        console.error('Coinos NWC payments error:', error.message);
         return res.status(502).json({ error: error.message });
+    } finally {
+        if (client) client.close();
     }
-}
-
-function formatPayments(data) {
-    const list = Array.isArray(data) ? data : data.payments || [];
-    return list
-        .filter(p => p.amount > 0)
-        .map(p => ({
-            id: p.id,
-            amount: Math.abs(p.amount),
-            memo: p.memo || '',
-            created: p.created,
-        }));
 }
