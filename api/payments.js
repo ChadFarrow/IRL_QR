@@ -1,3 +1,4 @@
+import 'websocket-polyfill';
 import { NWCClient } from '@getalby/sdk/nwc';
 
 export default async function handler(req, res) {
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
         client = new NWCClient({ nostrWalletConnectUrl: nwcUrl });
         const { transactions } = await client.listTransactions({
             type: 'incoming',
-            limit: 50,
+            limit: 20,
         });
 
         // Convert NWC transactions to the format app.js expects
