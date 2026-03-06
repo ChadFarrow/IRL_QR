@@ -5,22 +5,40 @@
 }
 
 body {
-    min-height: 100vh;
-    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    padding: 30px;
+    padding: 15px 30px 30px 15px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.site-header {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.header-title {
+    font-family: 'Georgia', serif;
+    font-size: 64px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: 6px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    margin: 0;
 }
 
 .main-layout {
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     gap: 40px;
-    max-width: 1200px;
     width: 100%;
+    flex: 1;
+    min-height: 0;
 }
 
 .background {
@@ -80,6 +98,10 @@ body {
 .feed-container {
     flex: 1;
     min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
 }
 
 .feed-title {
@@ -94,7 +116,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 70vh;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
 }
 
@@ -106,11 +129,11 @@ body {
 }
 
 .boost-item {
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
-    padding: 12px 14px;
-    backdrop-filter: blur(6px);
+    padding: 16px 18px;
+    backdrop-filter: blur(10px);
 }
 
 .boost-header {
@@ -127,22 +150,22 @@ body {
 }
 
 .boost-amount {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 16px;
-    font-weight: 500;
+    color: #f7931a;
+    font-size: 22px;
+    font-weight: 700;
 }
 
 .boost-message {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 16px;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 20px;
     line-height: 1.4;
     word-break: break-word;
 }
 
 .boost-time {
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 11px;
-    margin-top: 4px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    margin-top: 6px;
 }
 
 @media (max-width: 700px) {
