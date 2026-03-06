@@ -48,11 +48,11 @@ function escapeHtml(text) {
 
 function launchConfetti() {
     const colors = ['#f7931a', '#ffd700', '#ff6600', '#ffffff', '#ff4500'];
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 200; i++) {
         const el = document.createElement('div');
         el.style.cssText = `
             position:fixed;top:-10px;left:${Math.random()*100}vw;
-            width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;
+            width:${8+Math.random()*10}px;height:${8+Math.random()*10}px;
             background:${colors[Math.floor(Math.random()*colors.length)]};
             border-radius:${Math.random()>0.5?'50%':'0'};
             pointer-events:none;z-index:9999;
