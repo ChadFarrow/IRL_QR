@@ -3,10 +3,16 @@ const FEED_POLL_INTERVAL = 10000;
 const qrcodeEl = document.getElementById('qrcode');
 const paymentFeedEl = document.getElementById('boost-feed');
 
-// Lightning address QR — wallet resolves via /.well-known/lnurlp/ on our domain
+let currentWallet = 'albyhub';
+
+function getLightningAddress() {
+    if (currentWallet === 'coinos') return 'ChadF@coinos.io';
+    return `sxworldwide@${window.location.hostname}`;
+}
+
 function generateStaticQR() {
-    const domain = window.location.hostname;
-    const lightningAddress = `sxworldwide@${domain}`;
+    qrcodeEl.innerHTML = '';
+    const lightningAddress = getLightningAddress();
     new QRCode(qrcodeEl, {
         text: `lightning:${lightningAddress}`,
         width: 700,
@@ -15,6 +21,7 @@ function generateStaticQR() {
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.L
     });
+    document.getElementById('lightning-address').textContent = lightningAddress;
 }
 
 // Payment feed
@@ -76,8 +83,17 @@ async function loadPaymentFeed() {
     }
 }
 
+// Toggle buttons
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentWallet = btn.dataset.wallet;
+        generateStaticQR();
+    });
+});
+
 // Init
 generateStaticQR();
-document.getElementById('lightning-address').textContent = `sxworldwide@${window.location.hostname}`;
 loadPaymentFeed();
 setInterval(loadPaymentFeed, FEED_POLL_INTERVAL);
