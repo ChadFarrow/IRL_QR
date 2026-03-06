@@ -46,6 +46,26 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+function launchConfetti() {
+    const colors = ['#f7931a', '#ffd700', '#ff6600', '#ffffff', '#ff4500'];
+    for (let i = 0; i < 80; i++) {
+        const el = document.createElement('div');
+        el.style.cssText = `
+            position:fixed;top:-10px;left:${Math.random()*100}vw;
+            width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;
+            background:${colors[Math.floor(Math.random()*colors.length)]};
+            border-radius:${Math.random()>0.5?'50%':'0'};
+            pointer-events:none;z-index:9999;
+            animation:confetti-fall ${1.5+Math.random()*2}s ease-in forwards;
+            animation-delay:${Math.random()*0.5}s;opacity:0;
+        `;
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+    }
+}
+
+let lastPaymentId = null;
+
 function renderPaymentFeed(payments) {
     if (!payments || payments.length === 0) {
         paymentFeedEl.innerHTML = '<div class="feed-empty">No payments yet</div>';
@@ -76,7 +96,15 @@ async function loadPaymentFeed() {
             return;
         }
         const data = await response.json();
-        renderPaymentFeed(data.payments || data);
+        const payments = data.payments || data;
+        if (payments && payments.length > 0) {
+            const newestId = payments[0].id || payments[0].created;
+            if (lastPaymentId !== null && newestId !== lastPaymentId) {
+                launchConfetti();
+            }
+            lastPaymentId = newestId;
+        }
+        renderPaymentFeed(payments);
     } catch (error) {
         console.error('Failed to load payment feed:', error);
         paymentFeedEl.innerHTML = `<div class="feed-empty">Unable to load payments</div>`;

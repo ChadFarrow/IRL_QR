@@ -34,7 +34,7 @@ body {
 .wallet-toggle {
     display: flex;
     gap: 0;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -196,6 +196,11 @@ body {
     color: rgba(255, 255, 255, 0.5);
     font-size: 14px;
     margin-top: 6px;
+}
+
+@keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
 }
 
 @media (max-width: 700px) {
