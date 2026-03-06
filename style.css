@@ -43,7 +43,7 @@ body {
     padding: 25px;
     text-align: center;
     width: 100%;
-    max-width: 360px;
+    max-width: 560px;
     border-radius: 16px;
     border: 2px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
