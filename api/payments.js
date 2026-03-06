@@ -1,6 +1,22 @@
 import 'websocket-polyfill';
 import { NWCClient } from '@getalby/sdk/nwc';
 
+function parseMemo(description) {
+    if (!description) return '';
+    // NWC descriptions can be JSON metadata like:
+    // [["text/plain","Paying chadf@coinos.io"],["text/identifier","chadf@coinos.io"]]
+    try {
+        const parsed = JSON.parse(description);
+        if (Array.isArray(parsed)) {
+            const textEntry = parsed.find(e => Array.isArray(e) && e[0] === 'text/plain');
+            if (textEntry) return textEntry[1] || '';
+        }
+    } catch {
+        // Not JSON, use as-is
+    }
+    return description;
+}
+
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
@@ -24,7 +40,7 @@ export default async function handler(req, res) {
             .filter(t => t.state === 'settled')
             .map(t => ({
                 amount: Math.round(t.amount / 1000), // msats -> sats
-                memo: t.description || '',
+                memo: parseMemo(t.description),
                 created: t.settled_at ? t.settled_at * 1000 : t.created_at * 1000,
             }));
 
