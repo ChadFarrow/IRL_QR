@@ -8,8 +8,8 @@ const paymentFeedEl = document.getElementById('boost-feed');
 function generateStaticQR() {
     new QRCode(qrcodeEl, {
         text: `lightning:${LIGHTNING_ADDRESS}`,
-        width: 500,
-        height: 500,
+        width: 700,
+        height: 700,
         colorDark: '#000000',
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.L
