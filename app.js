@@ -87,7 +87,8 @@ function renderPaymentFeed(payments) {
 
 async function loadPaymentFeed() {
     try {
-        const response = await fetch('/api/payments');
+        const endpoint = currentWallet === 'coinos' ? '/api/coinos-payments' : '/api/payments';
+        const response = await fetch(endpoint);
         if (!response.ok) {
             const err = await response.json().catch(() => ({ error: response.statusText }));
             const msg = err.error || JSON.stringify(err);
@@ -118,6 +119,7 @@ document.querySelectorAll('.toggle-btn').forEach(btn => {
         btn.classList.add('active');
         currentWallet = btn.dataset.wallet;
         generateStaticQR();
+        loadPaymentFeed();
     });
 });
 
