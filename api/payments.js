@@ -35,11 +35,6 @@ export default async function handler(req, res) {
             limit: 20,
         });
 
-        // Debug mode: return raw transactions
-        if (req.query.debug) {
-            return res.status(200).json({ transactions: transactions.slice(0, 3) });
-        }
-
         // Convert NWC transactions to the format app.js expects
         const payments = transactions
             .filter(t => t.state === 'settled')

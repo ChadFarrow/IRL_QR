@@ -11,7 +11,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { amount } = req.query;
+    const { amount, comment } = req.query;
 
     // If no amount, return LNURL-pay metadata (step 1)
     if (!amount) {
@@ -23,6 +23,7 @@ export default async function handler(req, res) {
             maxSendable: 10000000000,  // 10M sats in msats
             metadata,
             tag: 'payRequest',
+            commentAllowed: 255,
         });
     }
 
@@ -42,10 +43,14 @@ export default async function handler(req, res) {
     let client;
     try {
         client = new NWCClient({ nostrWalletConnectUrl: nwcUrl });
-        const invoice = await client.makeInvoice({
-            amount: msats, // msats
+        const invoiceParams = {
+            amount: msats,
             description_hash: descriptionHash,
-        });
+        };
+        if (comment) {
+            invoiceParams.metadata = { comment: comment.slice(0, 255) };
+        }
+        const invoice = await client.makeInvoice(invoiceParams);
 
         return res.status(200).json({
             pr: invoice.invoice,
