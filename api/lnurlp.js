@@ -1,7 +1,12 @@
 import 'websocket-polyfill';
+import { createHash } from 'crypto';
 import { NWCClient } from '@getalby/sdk/nwc';
 
+const metadata = JSON.stringify([['text/plain', 'SXWORLDWIDE Lightning Payment']]);
+
 export default async function handler(req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -16,7 +21,7 @@ export default async function handler(req, res) {
             callback: `${protocol}://${host}/api/lnurlp`,
             minSendable: 1000,        // 1 sat in msats
             maxSendable: 10000000000,  // 10M sats in msats
-            metadata: JSON.stringify([['text/plain', 'SXWORLDWIDE Lightning Payment']]),
+            metadata,
             tag: 'payRequest',
         });
     }
@@ -32,12 +37,14 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Invalid amount' });
     }
 
+    const descriptionHash = createHash('sha256').update(metadata).digest('hex');
+
     let client;
     try {
         client = new NWCClient({ nostrWalletConnectUrl: nwcUrl });
         const invoice = await client.makeInvoice({
             amount: msats, // msats
-            description: 'SXWORLDWIDE Lightning Payment',
+            description_hash: descriptionHash,
         });
 
         return res.status(200).json({
