@@ -76,9 +76,11 @@ function renderPaymentFeed(payments) {
         return `
         <div class="boost-item">
             <div class="boost-header">
+                ${payment.sender ? `<span class="boost-sender">${escapeHtml(payment.sender)}</span>` : ''}
                 <span class="boost-amount">${formatSats(payment.amount)}</span>
             </div>
-            ${payment.memo ? `<div class="boost-message">${escapeHtml(payment.memo)}</div>` : ''}
+            ${payment.comment ? `<div class="boost-message">${escapeHtml(payment.comment)}</div>` : ''}
+            ${payment.memo && !payment.comment ? `<div class="boost-message">${escapeHtml(payment.memo)}</div>` : ''}
             ${payment.created ? `<div class="boost-time">${timeAgo(payment.created)}</div>` : ''}
         </div>
     `;

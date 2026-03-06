@@ -41,6 +41,8 @@ export default async function handler(req, res) {
             .map(t => ({
                 amount: Math.round(t.amount / 1000), // msats -> sats
                 memo: parseMemo(t.description),
+                sender: t.metadata?.payer_data?.name || '',
+                comment: t.metadata?.comment || '',
                 created: t.settled_at ? t.settled_at * 1000 : t.created_at * 1000,
             }));
 
