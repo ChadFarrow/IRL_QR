@@ -70,11 +70,17 @@ function renderPaymentFeed(payments) {
 async function loadPaymentFeed() {
     try {
         const response = await fetch('/api/payments');
-        if (!response.ok) return;
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({ error: response.statusText }));
+            console.error('Payment API error:', response.status, err);
+            paymentFeedEl.innerHTML = `<div class="feed-empty">Unable to load payments</div>`;
+            return;
+        }
         const data = await response.json();
         renderPaymentFeed(data.payments || data);
     } catch (error) {
         console.error('Failed to load payment feed:', error);
+        paymentFeedEl.innerHTML = `<div class="feed-empty">Unable to load payments</div>`;
     }
 }
 
