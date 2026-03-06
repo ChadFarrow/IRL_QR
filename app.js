@@ -44,21 +44,11 @@ function renderPaymentFeed(payments) {
         return;
     }
 
-    // Show only incoming payments (positive amounts), most recent first
-    const incoming = payments.filter(p => p.amount > 0);
-    if (incoming.length === 0) {
-        paymentFeedEl.innerHTML = '<div class="feed-empty">No payments yet</div>';
-        return;
-    }
-
-    paymentFeedEl.innerHTML = incoming.map(payment => {
-        const sender = payment.with?.username || 'Anonymous';
-        const tipText = payment.tip ? ` (+${payment.tip.toLocaleString()} tip)` : '';
+    paymentFeedEl.innerHTML = payments.map(payment => {
         return `
         <div class="boost-item">
             <div class="boost-header">
-                <span class="boost-sender">${escapeHtml(sender)}</span>
-                <span class="boost-amount">${formatSats(payment.amount)}${tipText}</span>
+                <span class="boost-amount">${formatSats(payment.amount)}</span>
             </div>
             ${payment.memo ? `<div class="boost-message">${escapeHtml(payment.memo)}</div>` : ''}
             ${payment.created ? `<div class="boost-time">${timeAgo(payment.created)}</div>` : ''}

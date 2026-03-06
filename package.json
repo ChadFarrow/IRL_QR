@@ -1,3 +1,7 @@
 {
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@getalby/sdk": "^7.0.0",
+    "websocket-polyfill": "^0.0.3"
+  }
 }
