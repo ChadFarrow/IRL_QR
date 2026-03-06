@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A static web app that generates Bitcoin Lightning invoices for a fixed $5.00 USD payment to `chadf@fountain.fm`. Includes a step-by-step CashApp payment guide. Deployed on Vercel at https://so-big-lightning-payment.vercel.app/.
+A static web app that generates Bitcoin Lightning payment QR codes for `ChadF@coinos.io`. Includes a step-by-step CashApp payment guide. Deployed on Vercel at https://so-big-lightning-payment.vercel.app/.
 
 ## Development
 
@@ -23,20 +23,22 @@ python3 -m http.server
 - `index.html` + `style.css` + `app.js` — Main payment page with QR code invoice generator
 - `guide.html` + `guide.css` + `guide.js` — 7-step CashApp payment tutorial with screenshot carousel
 
-**Invoice generation flow (`app.js`):**
-1. Fetches BTC/USD price from CoinGecko API
-2. Converts $5.00 USD to millisatoshis
-3. Resolves LNURL-pay endpoint via `/.well-known/lnurlp/` (LNURL protocol)
-4. Requests a Lightning invoice from the LNURL callback
-5. Renders the invoice as a QR code using `qrcodejs` (loaded from CDN)
+**Payment flow (`app.js`):**
+1. Generates a static LNURL-pay QR code for `ChadF@coinos.io` (scanner's wallet handles amount)
+2. Renders the QR code using `qrcodejs` (loaded from CDN)
+3. Polls `/api/payments` for recent incoming payments from Coinos API
 
 **Guide carousel (`guide.js`):** Step-based navigation with dot indicators, Previous/Next buttons, and arrow key support. Mobile layout switches from side-by-side (text + image) to stacked column.
 
 ## Key External Dependencies
 
-- **CoinGecko API** — BTC price (`api.coingecko.com`)
-- **Fountain.fm LNURL** — Invoice generation via `fountain.fm/.well-known/lnurlp/chadf`
+- **Coinos API** — Payment history and Lightning Address (`coinos.io`)
 - **qrcodejs** — QR rendering (CDN: `cdnjs.cloudflare.com`)
+
+## Environment Variables (Vercel)
+
+- `COINOS_USERNAME` — Coinos account username for API auth
+- `COINOS_PASSWORD` — Coinos account password for API auth
 
 ## Mobile Considerations
 

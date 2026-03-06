@@ -1,8 +1,8 @@
-const LIGHTNING_ADDRESS = 'chadf@fountain.fm';
+const LIGHTNING_ADDRESS = 'ChadF@coinos.io';
 const FEED_POLL_INTERVAL = 30000;
 
 const qrcodeEl = document.getElementById('qrcode');
-const boostFeedEl = document.getElementById('boost-feed');
+const paymentFeedEl = document.getElementById('boost-feed');
 
 // Static LNURL-pay QR code — scanner's wallet handles amount selection
 function generateStaticQR() {
@@ -17,9 +17,8 @@ function generateStaticQR() {
 }
 
 // Payment feed
-function formatSats(msats) {
-    const sats = Math.round(msats / 1000);
-    return sats.toLocaleString() + ' sats';
+function formatSats(sats) {
+    return Math.abs(sats).toLocaleString() + ' sats';
 }
 
 function timeAgo(timestamp) {
@@ -39,36 +38,47 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function renderBoostFeed(boosts) {
-    if (!boosts || boosts.length === 0) {
-        boostFeedEl.innerHTML = '<div class="feed-empty">No payments yet</div>';
+function renderPaymentFeed(payments) {
+    if (!payments || payments.length === 0) {
+        paymentFeedEl.innerHTML = '<div class="feed-empty">No payments yet</div>';
         return;
     }
 
-    boostFeedEl.innerHTML = boosts.map(boost => `
+    // Show only incoming payments (positive amounts), most recent first
+    const incoming = payments.filter(p => p.amount > 0);
+    if (incoming.length === 0) {
+        paymentFeedEl.innerHTML = '<div class="feed-empty">No payments yet</div>';
+        return;
+    }
+
+    paymentFeedEl.innerHTML = incoming.map(payment => {
+        const sender = payment.with?.username || 'Anonymous';
+        const tipText = payment.tip ? ` (+${payment.tip.toLocaleString()} tip)` : '';
+        return `
         <div class="boost-item">
             <div class="boost-header">
-                <span class="boost-sender">${escapeHtml(boost.sender_name || 'Anonymous')}</span>
-                <span class="boost-amount">${formatSats(boost.value_msat || 0)}</span>
+                <span class="boost-sender">${escapeHtml(sender)}</span>
+                <span class="boost-amount">${formatSats(payment.amount)}${tipText}</span>
             </div>
-            ${boost.message ? `<div class="boost-message">${escapeHtml(boost.message)}</div>` : ''}
-            ${boost.timestamp ? `<div class="boost-time">${timeAgo(boost.timestamp)}</div>` : ''}
+            ${payment.memo ? `<div class="boost-message">${escapeHtml(payment.memo)}</div>` : ''}
+            ${payment.created ? `<div class="boost-time">${timeAgo(payment.created)}</div>` : ''}
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
-async function loadBoostFeed() {
+async function loadPaymentFeed() {
     try {
-        const response = await fetch('/api/boosts');
+        const response = await fetch('/api/payments');
         if (!response.ok) return;
-        const boosts = await response.json();
-        renderBoostFeed(boosts);
+        const data = await response.json();
+        renderPaymentFeed(data.payments || data);
     } catch (error) {
-        console.error('Failed to load boost feed:', error);
+        console.error('Failed to load payment feed:', error);
     }
 }
 
 // Init
 generateStaticQR();
-loadBoostFeed();
-setInterval(loadBoostFeed, FEED_POLL_INTERVAL);
+loadPaymentFeed();
+setInterval(loadPaymentFeed, FEED_POLL_INTERVAL);
