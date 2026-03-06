@@ -1,5 +1,5 @@
 const LIGHTNING_ADDRESS = 'ChadF@coinos.io';
-const FEED_POLL_INTERVAL = 30000;
+const FEED_POLL_INTERVAL = 10000;
 
 const qrcodeEl = document.getElementById('qrcode');
 const paymentFeedEl = document.getElementById('boost-feed');
