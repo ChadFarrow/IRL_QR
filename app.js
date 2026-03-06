@@ -15,8 +15,8 @@ function generateStaticQR() {
     const lightningAddress = getLightningAddress();
     new QRCode(qrcodeEl, {
         text: `lightning:${lightningAddress}`,
-        width: 700,
-        height: 700,
+        width: 500,
+        height: 500,
         colorDark: '#000000',
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.L
