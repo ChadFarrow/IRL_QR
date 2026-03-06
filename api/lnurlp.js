@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     }
 
     // Amount provided — generate invoice via NWC (step 2)
-    const nwcUrl = process.env.NWC_URL;
+    const nwcUrl = process.env.ALBYHUB_NWC_URL;
     if (!nwcUrl) {
         return res.status(500).json({ error: 'Missing NWC_URL' });
     }

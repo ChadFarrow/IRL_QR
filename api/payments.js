@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const nwcUrl = process.env.NWC_URL;
+    const nwcUrl = process.env.ALBYHUB_NWC_URL;
     if (!nwcUrl) {
         return res.status(500).json({ error: 'Missing env var: NWC_URL must be set' });
     }
