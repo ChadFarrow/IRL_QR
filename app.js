@@ -5,69 +5,15 @@ const paymentFeedEl = document.getElementById('boost-feed');
 
 // LNURL-pay QR pointing to our API which generates invoices via NWC
 function generateStaticQR() {
-    const host = window.location.origin;
-    const lnurlPayUrl = `${host}/api/lnurlp`;
-    // Encode as bech32 LNURL
-    const lnurl = bech32Encode(lnurlPayUrl);
+    const lnurlPayUrl = `${window.location.origin}/api/lnurlp`;
     new QRCode(qrcodeEl, {
-        text: `lightning:${lnurl}`,
+        text: lnurlPayUrl,
         width: 700,
         height: 700,
         colorDark: '#000000',
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.L
     });
-}
-
-// Bech32 LNURL encoding
-function bech32Encode(url) {
-    const data = new TextEncoder().encode(url);
-    const words = convertBits(data, 8, 5, true);
-    return bech32EncodeWords('lnurl', words, 1023);
-}
-
-function convertBits(data, fromBits, toBits, pad) {
-    let acc = 0, bits = 0;
-    const ret = [];
-    const maxv = (1 << toBits) - 1;
-    for (const value of data) {
-        acc = (acc << fromBits) | value;
-        bits += fromBits;
-        while (bits >= toBits) {
-            bits -= toBits;
-            ret.push((acc >> bits) & maxv);
-        }
-    }
-    if (pad && bits > 0) ret.push((acc << (toBits - bits)) & maxv);
-    return ret;
-}
-
-function bech32EncodeWords(hrp, words, limit) {
-    const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
-    const polymod = (values) => {
-        const GEN = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
-        let chk = 1;
-        for (const v of values) {
-            const b = chk >> 25;
-            chk = ((chk & 0x1ffffff) << 5) ^ v;
-            for (let i = 0; i < 5; i++) if ((b >> i) & 1) chk ^= GEN[i];
-        }
-        return chk;
-    };
-    const hrpExpand = (h) => {
-        const ret = [];
-        for (const c of h) ret.push(c.charCodeAt(0) >> 5);
-        ret.push(0);
-        for (const c of h) ret.push(c.charCodeAt(0) & 31);
-        return ret;
-    };
-    const values = hrpExpand(hrp).concat(words).concat([0, 0, 0, 0, 0, 0]);
-    const mod = polymod(values) ^ 1;
-    const checksum = [];
-    for (let i = 0; i < 6; i++) checksum.push((mod >> (5 * (5 - i))) & 31);
-    let result = hrp + '1';
-    for (const w of words.concat(checksum)) result += CHARSET[w];
-    return result.toUpperCase();
 }
 
 // Payment feed
