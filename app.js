@@ -1,96 +1,62 @@
 const FEED_POLL_INTERVAL = 10000;
+const INVOICE_AMOUNT_USD = 1.25;
 
 const qrcodeEl = document.getElementById('qrcode');
 const paymentFeedEl = document.getElementById('boost-feed');
+const invoiceInfoEl = document.getElementById('invoice-info');
+const regenerateBtn = document.getElementById('regenerate-btn');
 
 let currentWallet = 'albyhub';
 
-// Bech32 encoding for LNURL (needed for CashApp and universal wallet compatibility)
-const BECH32_CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+async function generateInvoiceQR() {
+    qrcodeEl.innerHTML = '<div style="color: rgba(255,255,255,0.6); padding: 40px;">Generating invoice...</div>';
+    invoiceInfoEl.textContent = '';
+    regenerateBtn.style.display = 'none';
 
-function bech32HrpExpand(hrp) {
-    const ret = [];
-    for (let i = 0; i < hrp.length; i++) ret.push(hrp.charCodeAt(i) >> 5);
-    ret.push(0);
-    for (let i = 0; i < hrp.length; i++) ret.push(hrp.charCodeAt(i) & 31);
-    return ret;
-}
+    try {
+        // 1. Fetch current BTC price
+        const priceRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+        if (!priceRes.ok) throw new Error('Failed to fetch BTC price');
+        const priceData = await priceRes.json();
+        const btcPrice = priceData.bitcoin.usd;
 
-function bech32Polymod(values) {
-    const GEN = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
-    let chk = 1;
-    for (let i = 0; i < values.length; i++) {
-        const b = chk >> 25;
-        chk = ((chk & 0x1ffffff) << 5) ^ values[i];
-        for (let j = 0; j < 5; j++) {
-            if ((b >> j) & 1) chk ^= GEN[j];
+        // 2. Convert USD to millisatoshis
+        const btcAmount = INVOICE_AMOUNT_USD / btcPrice;
+        const sats = Math.round(btcAmount * 1e8);
+        const msats = sats * 1000;
+
+        // 3. Call LNURL-pay callback with amount to get bolt11 invoice
+        const invoiceRes = await fetch(`/api/lnurlp?amount=${msats}`);
+        if (!invoiceRes.ok) {
+            const err = await invoiceRes.json().catch(() => ({}));
+            throw new Error(err.error || 'Failed to generate invoice');
         }
+        const invoiceData = await invoiceRes.json();
+        const bolt11 = invoiceData.pr;
+
+        if (!bolt11) throw new Error('No invoice returned');
+
+        // 4. Display bolt11 invoice in QR code
+        qrcodeEl.innerHTML = '';
+        const qrSize = window.innerWidth <= 700 ? 260 : 500;
+        new QRCode(qrcodeEl, {
+            text: bolt11.toUpperCase(),
+            width: qrSize,
+            height: qrSize,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.L
+        });
+
+        // 5. Show amount info
+        invoiceInfoEl.textContent = `$${INVOICE_AMOUNT_USD.toFixed(2)} (~${sats.toLocaleString()} sats)`;
+        regenerateBtn.style.display = 'inline-block';
+
+    } catch (error) {
+        console.error('Invoice generation failed:', error);
+        qrcodeEl.innerHTML = `<div style="color: #ff6b6b; padding: 40px;">Failed to generate invoice: ${error.message}</div>`;
+        regenerateBtn.style.display = 'inline-block';
     }
-    return chk;
-}
-
-function bech32CreateChecksum(hrp, data) {
-    const values = bech32HrpExpand(hrp).concat(data).concat([0, 0, 0, 0, 0, 0]);
-    const polymod = bech32Polymod(values) ^ 1;
-    const ret = [];
-    for (let i = 0; i < 6; i++) ret.push((polymod >> (5 * (5 - i))) & 31);
-    return ret;
-}
-
-function convertBits(data, fromBits, toBits, pad) {
-    let acc = 0, bits = 0;
-    const ret = [];
-    const maxv = (1 << toBits) - 1;
-    for (let i = 0; i < data.length; i++) {
-        acc = (acc << fromBits) | data[i];
-        bits += fromBits;
-        while (bits >= toBits) {
-            bits -= toBits;
-            ret.push((acc >> bits) & maxv);
-        }
-    }
-    if (pad && bits > 0) ret.push((acc << (toBits - bits)) & maxv);
-    return ret;
-}
-
-function bech32Encode(hrp, data) {
-    const combined = data.concat(bech32CreateChecksum(hrp, data));
-    let ret = hrp + '1';
-    for (let i = 0; i < combined.length; i++) ret += BECH32_CHARSET[combined[i]];
-    return ret;
-}
-
-function encodeLnurl(url) {
-    const encoder = new TextEncoder();
-    const bytes = Array.from(encoder.encode(url));
-    const data = convertBits(bytes, 8, 5, true);
-    return bech32Encode('lnurl', data).toUpperCase();
-}
-
-function getLightningAddress() {
-    // if (currentWallet === 'coinos') return 'ChadF@coinos.io';
-    return `sxworldwide@${window.location.hostname}`;
-}
-
-function getLnurlPayUrl() {
-    // if (currentWallet === 'coinos') return 'https://coinos.io/.well-known/lnurlp/ChadF';
-    return `https://${window.location.hostname}/.well-known/lnurlp/sxworldwide`;
-}
-
-function generateStaticQR() {
-    qrcodeEl.innerHTML = '';
-    const lightningAddress = getLightningAddress();
-    const lnurl = encodeLnurl(getLnurlPayUrl());
-    const qrSize = window.innerWidth <= 700 ? 260 : 500;
-    new QRCode(qrcodeEl, {
-        text: `lightning:${lnurl}`,
-        width: qrSize,
-        height: qrSize,
-        colorDark: '#000000',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.L
-    });
-    document.getElementById('lightning-address').textContent = lightningAddress;
 }
 
 // Payment feed
@@ -158,7 +124,6 @@ function renderPaymentFeed(payments) {
 
 async function loadPaymentFeed() {
     try {
-        // const endpoint = currentWallet === 'coinos' ? '/api/coinos-payments' : '/api/payments';
         const endpoint = '/api/payments';
         const response = await fetch(endpoint);
         if (!response.ok) {
@@ -184,18 +149,10 @@ async function loadPaymentFeed() {
     }
 }
 
-// Toggle buttons (commented out - using AlbyHub only for now)
-// document.querySelectorAll('.toggle-btn').forEach(btn => {
-//     btn.addEventListener('click', () => {
-//         document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-//         btn.classList.add('active');
-//         currentWallet = btn.dataset.wallet;
-//         generateStaticQR();
-//         loadPaymentFeed();
-//     });
-// });
+// Regenerate button
+regenerateBtn.addEventListener('click', () => generateInvoiceQR());
 
 // Init
-generateStaticQR();
+generateInvoiceQR();
 loadPaymentFeed();
 setInterval(loadPaymentFeed, FEED_POLL_INTERVAL);

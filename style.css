@@ -94,10 +94,29 @@ body {
     backdrop-filter: blur(10px);
 }
 
-.lightning-address {
-    font-size: 18px;
-    color: rgba(255, 255, 255, 0.7);
+.invoice-info {
+    font-size: 20px;
+    font-weight: 600;
+    color: #f7931a;
     margin-top: 10px;
+}
+
+.regenerate-btn {
+    background: #f7931a;
+    color: #000;
+    border: none;
+    padding: 10px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 12px;
+    font-family: inherit;
+    transition: background 0.2s;
+}
+
+.regenerate-btn:hover {
+    background: #e8850f;
 }
 
 .scan-hint {
@@ -236,8 +255,13 @@ body {
         padding: 8px;
     }
 
-    .lightning-address {
+    .invoice-info {
+        font-size: 16px;
+    }
+
+    .regenerate-btn {
         font-size: 14px;
+        padding: 8px 20px;
     }
 
     .scan-hint {
