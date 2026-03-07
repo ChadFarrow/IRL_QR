@@ -5,16 +5,84 @@ const paymentFeedEl = document.getElementById('boost-feed');
 
 let currentWallet = 'albyhub';
 
+// Bech32 encoding for LNURL (needed for CashApp and universal wallet compatibility)
+const BECH32_CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+
+function bech32HrpExpand(hrp) {
+    const ret = [];
+    for (let i = 0; i < hrp.length; i++) ret.push(hrp.charCodeAt(i) >> 5);
+    ret.push(0);
+    for (let i = 0; i < hrp.length; i++) ret.push(hrp.charCodeAt(i) & 31);
+    return ret;
+}
+
+function bech32Polymod(values) {
+    const GEN = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+    let chk = 1;
+    for (let i = 0; i < values.length; i++) {
+        const b = chk >> 25;
+        chk = ((chk & 0x1ffffff) << 5) ^ values[i];
+        for (let j = 0; j < 5; j++) {
+            if ((b >> j) & 1) chk ^= GEN[j];
+        }
+    }
+    return chk;
+}
+
+function bech32CreateChecksum(hrp, data) {
+    const values = bech32HrpExpand(hrp).concat(data).concat([0, 0, 0, 0, 0, 0]);
+    const polymod = bech32Polymod(values) ^ 1;
+    const ret = [];
+    for (let i = 0; i < 6; i++) ret.push((polymod >> (5 * (5 - i))) & 31);
+    return ret;
+}
+
+function convertBits(data, fromBits, toBits, pad) {
+    let acc = 0, bits = 0;
+    const ret = [];
+    const maxv = (1 << toBits) - 1;
+    for (let i = 0; i < data.length; i++) {
+        acc = (acc << fromBits) | data[i];
+        bits += fromBits;
+        while (bits >= toBits) {
+            bits -= toBits;
+            ret.push((acc >> bits) & maxv);
+        }
+    }
+    if (pad && bits > 0) ret.push((acc << (toBits - bits)) & maxv);
+    return ret;
+}
+
+function bech32Encode(hrp, data) {
+    const combined = data.concat(bech32CreateChecksum(hrp, data));
+    let ret = hrp + '1';
+    for (let i = 0; i < combined.length; i++) ret += BECH32_CHARSET[combined[i]];
+    return ret;
+}
+
+function encodeLnurl(url) {
+    const encoder = new TextEncoder();
+    const bytes = Array.from(encoder.encode(url));
+    const data = convertBits(bytes, 8, 5, true);
+    return bech32Encode('lnurl', data).toUpperCase();
+}
+
 function getLightningAddress() {
     if (currentWallet === 'coinos') return 'ChadF@coinos.io';
     return `sxworldwide@${window.location.hostname}`;
 }
 
+function getLnurlPayUrl() {
+    if (currentWallet === 'coinos') return 'https://coinos.io/.well-known/lnurlp/ChadF';
+    return `https://${window.location.hostname}/.well-known/lnurlp/sxworldwide`;
+}
+
 function generateStaticQR() {
     qrcodeEl.innerHTML = '';
     const lightningAddress = getLightningAddress();
+    const lnurl = encodeLnurl(getLnurlPayUrl());
     new QRCode(qrcodeEl, {
-        text: `lightning:${lightningAddress}`,
+        text: `lightning:${lnurl}`,
         width: 500,
         height: 500,
         colorDark: '#000000',
