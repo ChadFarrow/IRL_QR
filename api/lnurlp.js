@@ -19,8 +19,8 @@ export default async function handler(req, res) {
         const protocol = req.headers['x-forwarded-proto'] || 'http';
         return res.status(200).json({
             callback: `${protocol}://${host}/api/lnurlp`,
-            minSendable: 1000,        // 1 sat in msats
-            maxSendable: 10000000000,  // 10M sats in msats
+            minSendable: 1838000,     // ~$1.25 at $68k BTC
+            maxSendable: 1838000,     // fixed amount for testing
             metadata,
             tag: 'payRequest',
             commentAllowed: 255,
