@@ -204,16 +204,77 @@ body {
 }
 
 @media (max-width: 700px) {
+    body {
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 10px 12px 20px;
+        height: auto;
+        min-height: 100dvh;
+    }
+
+    .site-header {
+        margin-bottom: 10px;
+    }
+
+    .header-title {
+        font-size: 28px;
+        letter-spacing: 3px;
+    }
+
     .main-layout {
         flex-direction: column;
         align-items: center;
+        gap: 20px;
+        flex: none;
     }
 
     .qr-container {
-        padding: 20px;
+        padding: 16px;
+        max-width: 100%;
+    }
+
+    #qrcode img, #qrcode canvas {
+        width: 260px !important;
+        height: 260px !important;
+        padding: 8px;
+    }
+
+    .lightning-address {
+        font-size: 14px;
+    }
+
+    .scan-hint {
+        font-size: 16px;
+    }
+
+    .feed-container {
+        width: 100%;
+        max-height: none;
+    }
+
+    .feed-title {
+        font-size: 18px;
+        margin-bottom: 10px;
     }
 
     .boost-feed {
-        max-height: 300px;
+        max-height: none;
+        overflow-y: visible;
+    }
+
+    .boost-item {
+        padding: 12px 14px;
+    }
+
+    .boost-amount {
+        font-size: 18px;
+    }
+
+    .boost-message {
+        font-size: 16px;
+    }
+
+    .boost-time {
+        font-size: 12px;
     }
 }
