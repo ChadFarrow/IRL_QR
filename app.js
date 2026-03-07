@@ -1,6 +1,6 @@
 const FEED_POLL_INTERVAL = 10000;
 const INVOICE_REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
-const INVOICE_AMOUNT_USD = 1.25;
+const INVOICE_AMOUNT_USD = 0.50;
 
 const qrcodeEl = document.getElementById('qrcode');
 const paymentFeedEl = document.getElementById('boost-feed');
