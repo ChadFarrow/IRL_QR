@@ -117,10 +117,16 @@ function launchConfetti() {
 let lastPaymentId = null;
 
 function renderPaymentFeed(payments) {
+    const totalEl = document.getElementById('feed-total');
     if (!payments || payments.length === 0) {
         paymentFeedEl.innerHTML = '<div class="feed-empty">No payments yet</div>';
+        totalEl.textContent = '';
         return;
     }
+
+    const totalSats = payments.reduce((sum, p) => sum + Math.abs(p.amount), 0);
+    const totalUsd = satsToUsd(totalSats);
+    totalEl.innerHTML = `Total: <span class="total-sats">${totalSats.toLocaleString()} sats</span>${totalUsd ? ` <span class="total-usd">(${totalUsd})</span>` : ''}`;
 
     paymentFeedEl.innerHTML = payments.map(payment => {
         const usd = satsToUsd(payment.amount);
