@@ -39,11 +39,15 @@ export default async function handler(req, res) {
         const payments = transactions
             .filter(t => t.state === 'settled')
             .map(t => ({
+                id: t.payment_hash || '',
                 amount: Math.round(t.amount / 1000), // msats -> sats
+                fees: t.fees_paid ? Math.round(t.fees_paid / 1000) : 0,
                 memo: parseMemo(t.description),
                 sender: t.metadata?.payer_data?.name || '',
                 comment: t.metadata?.comment || '',
                 created: t.settled_at ? t.settled_at * 1000 : t.created_at * 1000,
+                preimage: t.preimage || '',
+                payment_hash: t.payment_hash || '',
             }));
 
         return res.status(200).json({ payments });

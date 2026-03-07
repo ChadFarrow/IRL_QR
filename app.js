@@ -17,6 +17,7 @@ async function generateInvoiceQR() {
         if (!priceRes.ok) throw new Error('Failed to fetch BTC price');
         const priceData = await priceRes.json();
         const btcPrice = priceData.bitcoin.usd;
+        cachedBtcPrice = btcPrice;
 
         // 2. Convert USD to millisatoshis
         const btcAmount = INVOICE_AMOUNT_USD / btcPrice;
@@ -55,9 +56,27 @@ async function generateInvoiceQR() {
     }
 }
 
+// BTC price cache (updated during invoice generation)
+let cachedBtcPrice = null;
+
 // Payment feed
 function formatSats(sats) {
     return Math.abs(sats).toLocaleString() + ' sats';
+}
+
+function satsToUsd(sats) {
+    if (!cachedBtcPrice) return '';
+    const usd = (Math.abs(sats) / 1e8) * cachedBtcPrice;
+    return '$' + usd.toFixed(2);
+}
+
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString(undefined, {
+        month: 'short', day: 'numeric',
+        hour: 'numeric', minute: '2-digit',
+        hour12: true
+    });
 }
 
 function timeAgo(timestamp) {
@@ -104,15 +123,16 @@ function renderPaymentFeed(payments) {
     }
 
     paymentFeedEl.innerHTML = payments.map(payment => {
+        const usd = satsToUsd(payment.amount);
+        const message = payment.comment || payment.memo || '';
         return `
         <div class="boost-item">
             <div class="boost-header">
                 ${payment.sender ? `<span class="boost-sender">${escapeHtml(payment.sender)}</span>` : ''}
-                <span class="boost-amount">${formatSats(payment.amount)}</span>
+                <span class="boost-amount">${formatSats(payment.amount)}${usd ? ` <span class="boost-usd">(${usd})</span>` : ''}</span>
             </div>
-            ${payment.comment ? `<div class="boost-message">${escapeHtml(payment.comment)}</div>` : ''}
-            ${payment.memo && !payment.comment ? `<div class="boost-message">${escapeHtml(payment.memo)}</div>` : ''}
-            ${payment.created ? `<div class="boost-time">${timeAgo(payment.created)}</div>` : ''}
+            ${message ? `<div class="boost-message">${escapeHtml(message)}</div>` : ''}
+            ${payment.created ? `<div class="boost-time">${formatTimestamp(payment.created)} (${timeAgo(payment.created)})</div>` : ''}
         </div>
     `;
     }).join('');

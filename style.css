@@ -183,6 +183,12 @@ body {
     font-weight: 700;
 }
 
+.boost-usd {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 16px;
+    font-weight: 500;
+}
+
 .boost-message {
     color: rgba(255, 255, 255, 0.95);
     font-size: 20px;
