@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A web app that generates Bitcoin Lightning payment QR codes with support for two wallets: AlbyHub (via NWC) and Coinos (via NWC). Includes a wallet toggle for testing and a step-by-step CashApp payment guide. Deployed on Vercel at https://so-big-lightning-payment.vercel.app/.
+A web app that generates Bitcoin Lightning payment QR codes with support for two wallets: AlbyHub (via NWC) and Coinos (via NWC). Includes a wallet toggle for testing and a step-by-step CashApp payment guide. Deployed on Vercel at https://irl-qr-psi.vercel.app/.
 
 ## Development
 
