@@ -68,12 +68,12 @@ function encodeLnurl(url) {
 }
 
 function getLightningAddress() {
-    if (currentWallet === 'coinos') return 'ChadF@coinos.io';
+    // if (currentWallet === 'coinos') return 'ChadF@coinos.io';
     return `sxworldwide@${window.location.hostname}`;
 }
 
 function getLnurlPayUrl() {
-    if (currentWallet === 'coinos') return 'https://coinos.io/.well-known/lnurlp/ChadF';
+    // if (currentWallet === 'coinos') return 'https://coinos.io/.well-known/lnurlp/ChadF';
     return `https://${window.location.hostname}/.well-known/lnurlp/sxworldwide`;
 }
 
@@ -157,7 +157,8 @@ function renderPaymentFeed(payments) {
 
 async function loadPaymentFeed() {
     try {
-        const endpoint = currentWallet === 'coinos' ? '/api/coinos-payments' : '/api/payments';
+        // const endpoint = currentWallet === 'coinos' ? '/api/coinos-payments' : '/api/payments';
+        const endpoint = '/api/payments';
         const response = await fetch(endpoint);
         if (!response.ok) {
             const err = await response.json().catch(() => ({ error: response.statusText }));
@@ -182,16 +183,16 @@ async function loadPaymentFeed() {
     }
 }
 
-// Toggle buttons
-document.querySelectorAll('.toggle-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentWallet = btn.dataset.wallet;
-        generateStaticQR();
-        loadPaymentFeed();
-    });
-});
+// Toggle buttons (commented out - using AlbyHub only for now)
+// document.querySelectorAll('.toggle-btn').forEach(btn => {
+//     btn.addEventListener('click', () => {
+//         document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+//         btn.classList.add('active');
+//         currentWallet = btn.dataset.wallet;
+//         generateStaticQR();
+//         loadPaymentFeed();
+//     });
+// });
 
 // Init
 generateStaticQR();
