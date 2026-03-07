@@ -101,24 +101,6 @@ body {
     margin-top: 10px;
 }
 
-.regenerate-btn {
-    background: #f7931a;
-    color: #000;
-    border: none;
-    padding: 10px 24px;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 12px;
-    font-family: inherit;
-    transition: background 0.2s;
-}
-
-.regenerate-btn:hover {
-    background: #e8850f;
-}
-
 .scan-hint {
     font-size: 22px;
     font-weight: 600;
@@ -257,11 +239,6 @@ body {
 
     .invoice-info {
         font-size: 16px;
-    }
-
-    .regenerate-btn {
-        font-size: 14px;
-        padding: 8px 20px;
     }
 
     .scan-hint {

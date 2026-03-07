@@ -1,18 +1,16 @@
 const FEED_POLL_INTERVAL = 10000;
+const INVOICE_REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
 const INVOICE_AMOUNT_USD = 1.25;
 
 const qrcodeEl = document.getElementById('qrcode');
 const paymentFeedEl = document.getElementById('boost-feed');
 const invoiceInfoEl = document.getElementById('invoice-info');
-const regenerateBtn = document.getElementById('regenerate-btn');
 
 let currentWallet = 'albyhub';
 
 async function generateInvoiceQR() {
     qrcodeEl.innerHTML = '<div style="color: rgba(255,255,255,0.6); padding: 40px;">Generating invoice...</div>';
     invoiceInfoEl.textContent = '';
-    regenerateBtn.style.display = 'none';
-
     try {
         // 1. Fetch current BTC price
         const priceRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
@@ -50,12 +48,10 @@ async function generateInvoiceQR() {
 
         // 5. Show amount info
         invoiceInfoEl.textContent = `$${INVOICE_AMOUNT_USD.toFixed(2)} (~${sats.toLocaleString()} sats)`;
-        regenerateBtn.style.display = 'inline-block';
 
     } catch (error) {
         console.error('Invoice generation failed:', error);
         qrcodeEl.innerHTML = `<div style="color: #ff6b6b; padding: 40px;">Failed to generate invoice: ${error.message}</div>`;
-        regenerateBtn.style.display = 'inline-block';
     }
 }
 
@@ -139,6 +135,7 @@ async function loadPaymentFeed() {
             const newestId = payments[0].id || payments[0].created;
             if (lastPaymentId !== null && newestId !== lastPaymentId) {
                 launchConfetti();
+                generateInvoiceQR(); // fresh invoice for the next person
             }
             lastPaymentId = newestId;
         }
@@ -149,10 +146,8 @@ async function loadPaymentFeed() {
     }
 }
 
-// Regenerate button
-regenerateBtn.addEventListener('click', () => generateInvoiceQR());
-
 // Init
 generateInvoiceQR();
+setInterval(generateInvoiceQR, INVOICE_REFRESH_INTERVAL);
 loadPaymentFeed();
 setInterval(loadPaymentFeed, FEED_POLL_INTERVAL);
