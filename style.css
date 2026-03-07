@@ -134,10 +134,10 @@ body {
 
 .feed-total {
     text-align: center;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 8px;
+    margin-top: 14px;
 }
 
 .total-sats {
