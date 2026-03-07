@@ -4,9 +4,9 @@ A web app that generates Bitcoin Lightning payment QR codes with support for Alb
 
 ## Live Pages
 
-- **Payment Page**: [so-big-lightning-payment.vercel.app](https://so-big-lightning-payment.vercel.app/)
-- **CashApp Guide**: [so-big-lightning-payment.vercel.app/guide.html](https://so-big-lightning-payment.vercel.app/guide.html)
-- **Printable Pamphlet (PDF)**: [so-big-lightning-payment.vercel.app/pamphlet.html](https://so-big-lightning-payment.vercel.app/pamphlet.html)
+- [Payment Page](https://so-big-lightning-payment.vercel.app/)
+- [CashApp Guide](https://so-big-lightning-payment.vercel.app/guide.html)
+- [Printable Pamphlet (PDF)](https://so-big-lightning-payment.vercel.app/pamphlet.html)
 
 ## How It Works
 
