@@ -1,12 +1,72 @@
 const FEED_POLL_INTERVAL = 10000;
 const INVOICE_REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
-const INVOICE_AMOUNT_USD = 1.25;
+
+// Defaults (overridden by /api/settings)
+let siteSettings = {
+    invoiceAmountUsd: 1.25,
+    brandingTitle: 'SX-WORLDWIDE',
+    pageTitle: 'SXWW - Lightning Payment',
+    scanHintText: 'Scan to pay with CashApp or any Lightning wallet',
+    accentColor: '#f7931a',
+    gradientStart: '#5c1a1a',
+    gradientMid: '#3a0e0e',
+    gradientEnd: '#220808',
+    backgroundColor: '#110404',
+    backgroundImage: '',
+    confettiColors: '#f7931a,#ffd700,#ff6600,#ffffff,#ff4500',
+    feedTitle: 'Recent Payments',
+};
 
 const qrcodeEl = document.getElementById('qrcode');
 const paymentFeedEl = document.getElementById('boost-feed');
 const invoiceInfoEl = document.getElementById('invoice-info');
 
 let currentWallet = 'albyhub';
+
+function applySettings(settings) {
+    siteSettings = { ...siteSettings, ...settings };
+    const root = document.documentElement;
+
+    // Text
+    document.title = siteSettings.pageTitle;
+    const titleEl = document.querySelector('.header-title');
+    if (titleEl) titleEl.textContent = siteSettings.brandingTitle;
+    const hintEl = document.querySelector('.scan-hint');
+    if (hintEl) hintEl.textContent = siteSettings.scanHintText;
+    const feedTitleEl = document.querySelector('.feed-title');
+    if (feedTitleEl) feedTitleEl.textContent = siteSettings.feedTitle;
+
+    // CSS custom properties
+    root.style.setProperty('--accent-color', siteSettings.accentColor);
+    root.style.setProperty('--gradient-start', siteSettings.gradientStart);
+    root.style.setProperty('--gradient-mid', siteSettings.gradientMid);
+    root.style.setProperty('--gradient-end', siteSettings.gradientEnd);
+    root.style.setProperty('--bg-color', siteSettings.backgroundColor);
+
+    // Background image override
+    const bgEl = document.querySelector('.background');
+    if (bgEl) {
+        if (siteSettings.backgroundImage) {
+            bgEl.style.background = `url(${siteSettings.backgroundImage}) center/cover no-repeat`;
+            bgEl.style.backgroundColor = siteSettings.backgroundColor;
+        } else {
+            bgEl.style.background = '';
+            bgEl.style.backgroundColor = '';
+        }
+    }
+}
+
+async function loadSiteSettings() {
+    try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+            const settings = await res.json();
+            applySettings(settings);
+        }
+    } catch (e) {
+        // Use defaults silently
+    }
+}
 
 async function generateInvoiceQR() {
     qrcodeEl.innerHTML = '<div style="color: rgba(255,255,255,0.6); padding: 40px;">Generating invoice...</div>';
@@ -20,7 +80,8 @@ async function generateInvoiceQR() {
         cachedBtcPrice = btcPrice;
 
         // 2. Convert USD to millisatoshis
-        const btcAmount = INVOICE_AMOUNT_USD / btcPrice;
+        const amountUsd = siteSettings.invoiceAmountUsd;
+        const btcAmount = amountUsd / btcPrice;
         const sats = Math.round(btcAmount * 1e8);
         const msats = sats * 1000;
 
@@ -48,7 +109,7 @@ async function generateInvoiceQR() {
         });
 
         // 5. Show amount info
-        invoiceInfoEl.textContent = `$${INVOICE_AMOUNT_USD.toFixed(2)} (~${sats.toLocaleString()} sats)`;
+        invoiceInfoEl.textContent = `$${amountUsd.toFixed(2)} (~${sats.toLocaleString()} sats)`;
 
     } catch (error) {
         console.error('Invoice generation failed:', error);
@@ -97,7 +158,7 @@ function escapeHtml(text) {
 }
 
 function launchConfetti() {
-    const colors = ['#f7931a', '#ffd700', '#ff6600', '#ffffff', '#ff4500'];
+    const colors = siteSettings.confettiColors.split(',').map(c => c.trim()).filter(Boolean);
     for (let i = 0; i < 200; i++) {
         const el = document.createElement('div');
         el.style.cssText = `
@@ -172,8 +233,10 @@ async function loadPaymentFeed() {
     }
 }
 
-// Init
-generateInvoiceQR();
-setInterval(generateInvoiceQR, INVOICE_REFRESH_INTERVAL);
-loadPaymentFeed();
-setInterval(loadPaymentFeed, FEED_POLL_INTERVAL);
+// Init — load settings first, then start everything
+loadSiteSettings().then(() => {
+    generateInvoiceQR();
+    setInterval(generateInvoiceQR, INVOICE_REFRESH_INTERVAL);
+    loadPaymentFeed();
+    setInterval(loadPaymentFeed, FEED_POLL_INTERVAL);
+});
