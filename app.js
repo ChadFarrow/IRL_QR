@@ -175,6 +175,27 @@ function launchConfetti() {
 
 let lastPaymentId = null;
 
+async function sendToBoostBox(payment) {
+    try {
+        await fetch('/api/boost', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'boost',
+                split: 1,
+                value_msat: payment.amount * 1000,
+                value_msat_total: payment.amount * 1000,
+                timestamp: Math.floor(payment.created / 1000),
+                sender_name: payment.sender || 'Anonymous',
+                message: payment.comment || payment.memo || '',
+                feed_name: siteSettings.brandingTitle,
+            }),
+        });
+    } catch (e) {
+        console.error('BoostBox send failed:', e);
+    }
+}
+
 function renderPaymentFeed(payments) {
     const totalEl = document.getElementById('feed-total');
     if (!payments || payments.length === 0) {
@@ -221,6 +242,7 @@ async function loadPaymentFeed() {
             if (lastPaymentId !== null && newestId !== lastPaymentId) {
                 launchConfetti();
                 generateInvoiceQR(); // fresh invoice for the next person
+                sendToBoostBox(payments[0]);
             }
             lastPaymentId = newestId;
         }
