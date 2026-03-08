@@ -1,6 +1,6 @@
-import { kv } from '@vercel/kv';
+import { put, list } from '@vercel/blob';
 
-const SETTINGS_KEY = 'site_settings';
+const BLOB_PATH = 'settings.json';
 
 const DEFAULTS = {
     brandingTitle: 'SX-WORLDWIDE',
@@ -17,6 +17,13 @@ const DEFAULTS = {
     feedTitle: 'Recent Payments',
 };
 
+async function readSettings() {
+    const { blobs } = await list({ prefix: BLOB_PATH });
+    if (blobs.length === 0) return {};
+    const res = await fetch(blobs[0].url);
+    return res.json();
+}
+
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -28,7 +35,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
         try {
-            const stored = await kv.get(SETTINGS_KEY);
+            const stored = await readSettings();
             return res.status(200).json({ ...DEFAULTS, ...stored });
         } catch (error) {
             console.error('Failed to read settings:', error.message);
@@ -61,9 +68,12 @@ export default async function handler(req, res) {
                 }
             }
 
-            const current = (await kv.get(SETTINGS_KEY)) || {};
+            const current = await readSettings();
             const merged = { ...current, ...cleaned };
-            await kv.set(SETTINGS_KEY, merged);
+            await put(BLOB_PATH, JSON.stringify(merged), {
+                access: 'public',
+                addRandomSuffix: false,
+            });
 
             return res.status(200).json({ ...DEFAULTS, ...merged });
         } catch (error) {
