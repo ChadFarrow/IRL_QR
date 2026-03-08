@@ -34,8 +34,8 @@ vercel dev
 9. Grand total of all visible payments shown above the QR box
 
 **API endpoints:**
-- `api/lnurlp.js` — LNURL-pay endpoint for AlbyHub. Returns payRequest metadata (step 1) or generates invoice via NWC with `description_hash` (step 2). Uses `ALBYHUB_NWC_URL`.
-- `api/payments.js` — Lists incoming payments from AlbyHub via NWC. Returns amount, fees, memo, sender, comment, timestamp, payment_hash. Uses `ALBYHUB_NWC_URL`.
+- `api/lnurlp.js` — LNURL-pay endpoint for AlbyHub. Returns payRequest metadata (step 1) or generates invoice via NWC with `description_hash` (step 2). Uses `NWC_URL`.
+- `api/payments.js` — Lists incoming payments from AlbyHub via NWC. Returns amount, fees, memo, sender, comment, timestamp, payment_hash. Uses `NWC_URL`.
 - `api/settings.js` — GET/POST site settings stored in Vercel Blob. POST requires `Authorization: Bearer {ADMIN_PASSWORD}`. Uses `BLOB_READ_WRITE_TOKEN`.
 - `api/boost.js` / `api/boosts.js` — BoostBox integration (uses `BOOSTBOX_API_KEY`).
 
@@ -55,7 +55,7 @@ vercel dev
 
 ## Environment Variables (Vercel)
 
-- `ALBYHUB_NWC_URL` — NWC connection string for AlbyHub wallet (invoices + payment history)
+- `NWC_URL` — NWC connection string for AlbyHub wallet (invoices + payment history)
 - `BLOB_READ_WRITE_TOKEN` — Vercel Blob storage token (required for admin settings)
 - `ADMIN_PASSWORD` — Password for admin panel authentication
 - `BOOSTBOX_API_KEY` — BoostBox API key (optional)
