@@ -12,7 +12,7 @@ let siteSettings = {
     gradientMid: '#3a0e0e',
     gradientEnd: '#220808',
     backgroundColor: '#110404',
-    backgroundImage: '/background.png',
+    backgroundImage: 'https://raw.githubusercontent.com/ChadFarrow/IRL_QR/refs/heads/main/curtains1.png',
     confettiColors: '#f7931a,#ffd700,#ff6600,#ffffff,#ff4500',
     feedTitle: 'Recent Payments',
 };
