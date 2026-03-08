@@ -12,7 +12,7 @@ const DEFAULTS = {
     gradientMid: '#3a0e0e',
     gradientEnd: '#220808',
     backgroundColor: '#110404',
-    backgroundImage: '',
+    backgroundImage: '/background.png',
     confettiColors: '#f7931a,#ffd700,#ff6600,#ffffff,#ff4500',
     feedTitle: 'Recent Payments',
 };
