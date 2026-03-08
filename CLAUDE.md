@@ -37,7 +37,6 @@ vercel dev
 - `api/lnurlp.js` — LNURL-pay endpoint for AlbyHub. Returns payRequest metadata (step 1) or generates invoice via NWC with `description_hash` (step 2). Uses `ALBYHUB_NWC_URL`.
 - `api/payments.js` — Lists incoming payments from AlbyHub via NWC. Returns amount, fees, memo, sender, comment, timestamp, payment_hash. Uses `ALBYHUB_NWC_URL`.
 - `api/settings.js` — GET/POST site settings stored in Vercel Blob. POST requires `Authorization: Bearer {ADMIN_PASSWORD}`. Uses `BLOB_READ_WRITE_TOKEN`.
-- `api/coinos-payments.js` — Lists incoming payments from Coinos via NWC. Uses `NWC_URL`.
 - `api/boost.js` / `api/boosts.js` — BoostBox integration (uses `BOOSTBOX_API_KEY`).
 
 **Admin panel (`admin.html`):** Password-protected settings page. Configurable: branding title, page title, scan hint text, feed title, invoice amount (USD), accent color, confetti colors, background gradient colors, and background image URL. Settings stored in Vercel Blob storage. Includes live preview of color changes.
@@ -59,7 +58,6 @@ vercel dev
 - `ALBYHUB_NWC_URL` — NWC connection string for AlbyHub wallet (invoices + payment history)
 - `BLOB_READ_WRITE_TOKEN` — Vercel Blob storage token (required for admin settings)
 - `ADMIN_PASSWORD` — Password for admin panel authentication
-- `NWC_URL` — NWC connection string for Coinos wallet (payment history, optional)
 - `BOOSTBOX_API_KEY` — BoostBox API key (optional)
 
 ## Deployment Notes

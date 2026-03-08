@@ -21,8 +21,6 @@ const qrcodeEl = document.getElementById('qrcode');
 const paymentFeedEl = document.getElementById('boost-feed');
 const invoiceInfoEl = document.getElementById('invoice-info');
 
-let currentWallet = 'albyhub';
-
 function applySettings(settings) {
     siteSettings = { ...siteSettings, ...settings };
     const root = document.documentElement;
