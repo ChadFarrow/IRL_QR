@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Settings</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-container" id="admin-container">
+        <!-- Login screen -->
+        <div class="login-screen" id="login-screen">
+            <h1>Admin Settings</h1>
+            <p>Enter the admin password to continue.</p>
+            <form id="login-form">
+                <input type="password" id="password-input" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <div class="error-msg" id="login-error"></div>
+        </div>
+
+        <!-- Settings panel (hidden until authenticated) -->
+        <div class="settings-panel" id="settings-panel" style="display: none;">
+            <div class="settings-header">
+                <h1>Site Settings</h1>
+                <button class="btn-secondary" id="logout-btn">Logout</button>
+            </div>
+
+            <form id="settings-form">
+                <!-- Branding -->
+                <fieldset>
+                    <legend>Branding</legend>
+                    <label>
+                        Header Title
+                        <input type="text" name="brandingTitle" placeholder="SX-WORLDWIDE">
+                    </label>
+                    <label>
+                        Page Title (browser tab)
+                        <input type="text" name="pageTitle" placeholder="SXWW - Lightning Payment">
+                    </label>
+                    <label>
+                        Scan Hint Text
+                        <input type="text" name="scanHintText" placeholder="Scan to pay with CashApp or any Lightning wallet">
+                    </label>
+                    <label>
+                        Feed Title
+                        <input type="text" name="feedTitle" placeholder="Recent Payments">
+                    </label>
+                </fieldset>
+
+                <!-- Payment -->
+                <fieldset>
+                    <legend>Payment</legend>
+                    <label>
+                        Invoice Amount (USD)
+                        <input type="number" name="invoiceAmountUsd" step="0.01" min="0.01" placeholder="1.25">
+                    </label>
+                </fieldset>
+
+                <!-- Colors -->
+                <fieldset>
+                    <legend>Colors</legend>
+                    <label>
+                        Accent Color
+                        <div class="color-row">
+                            <input type="color" name="accentColor" value="#f7931a">
+                            <input type="text" name="accentColorText" placeholder="#f7931a" class="color-text">
+                        </div>
+                    </label>
+                    <label>
+                        Confetti Colors (comma-separated hex)
+                        <input type="text" name="confettiColors" placeholder="#f7931a,#ffd700,#ff6600,#ffffff,#ff4500">
+                    </label>
+                </fieldset>
+
+                <!-- Background -->
+                <fieldset>
+                    <legend>Background</legend>
+                    <div class="color-grid">
+                        <label>
+                            Gradient Start (center)
+                            <div class="color-row">
+                                <input type="color" name="gradientStart" value="#5c1a1a">
+                                <input type="text" name="gradientStartText" placeholder="#5c1a1a" class="color-text">
+                            </div>
+                        </label>
+                        <label>
+                            Gradient Mid
+                            <div class="color-row">
+                                <input type="color" name="gradientMid" value="#3a0e0e">
+                                <input type="text" name="gradientMidText" placeholder="#3a0e0e" class="color-text">
+                            </div>
+                        </label>
+                        <label>
+                            Gradient End (edge)
+                            <div class="color-row">
+                                <input type="color" name="gradientEnd" value="#220808">
+                                <input type="text" name="gradientEndText" placeholder="#220808" class="color-text">
+                            </div>
+                        </label>
+                        <label>
+                            Background Color (fallback)
+                            <div class="color-row">
+                                <input type="color" name="backgroundColor" value="#110404">
+                                <input type="text" name="backgroundColorText" placeholder="#110404" class="color-text">
+                            </div>
+                        </label>
+                    </div>
+                    <label>
+                        Background Image URL (optional, overrides gradient)
+                        <input type="url" name="backgroundImage" placeholder="https://example.com/image.jpg">
+                    </label>
+                </fieldset>
+
+                <!-- Preview -->
+                <fieldset>
+                    <legend>Preview</legend>
+                    <div class="preview-box" id="preview-box">
+                        <div class="preview-bg" id="preview-bg"></div>
+                        <div class="preview-content">
+                            <span class="preview-title" id="preview-title">SX-WORLDWIDE</span>
+                            <span class="preview-accent" id="preview-accent">&#9632; Accent</span>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" id="save-btn">Save Settings</button>
+                    <button type="button" class="btn-secondary" id="reset-btn">Reset to Defaults</button>
+                </div>
+                <div class="status-msg" id="status-msg"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

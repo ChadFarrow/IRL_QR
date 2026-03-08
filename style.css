@@ -1,3 +1,11 @@
+:root {
+    --accent-color: #f7931a;
+    --gradient-start: #5c1a1a;
+    --gradient-mid: #3a0e0e;
+    --gradient-end: #220808;
+    --bg-color: #110404;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -53,7 +61,7 @@ body {
 }
 
 .toggle-btn.active {
-    background: #f7931a;
+    background: var(--accent-color);
     color: #000;
 }
 
@@ -77,8 +85,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(ellipse at center, #5c1a1a 0%, #3a0e0e 35%, #220808 65%, #110404 100%);
-    background-color: #110404;
+    background: radial-gradient(ellipse at center, var(--gradient-start) 0%, var(--gradient-mid) 35%, var(--gradient-end) 65%, var(--bg-color) 100%);
+    background-color: var(--bg-color);
     z-index: -1;
 }
 
@@ -97,7 +105,7 @@ body {
 .invoice-info {
     font-size: 20px;
     font-weight: 600;
-    color: #f7931a;
+    color: var(--accent-color);
     margin-top: 10px;
 }
 
@@ -142,7 +150,7 @@ body {
 }
 
 .total-sats {
-    color: #f7931a;
+    color: var(--accent-color);
 }
 
 .total-usd {
@@ -191,13 +199,13 @@ body {
 }
 
 .boost-sender {
-    color: #f7931a;
+    color: var(--accent-color);
     font-size: 13px;
     font-weight: 600;
 }
 
 .boost-amount {
-    color: #f7931a;
+    color: var(--accent-color);
     font-size: 22px;
     font-weight: 700;
 }

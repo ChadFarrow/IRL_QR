@@ -3,6 +3,10 @@
         {
             "source": "/.well-known/lnurlp/:username",
             "destination": "/api/lnurlp"
+        },
+        {
+            "source": "/admin",
+            "destination": "/admin.html"
         }
     ]
 }
