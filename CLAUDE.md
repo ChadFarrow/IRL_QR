@@ -34,12 +34,12 @@ vercel dev
 9. Grand total of all visible payments shown above the QR box
 
 **API endpoints:**
-- `api/lnurlp.js` — LNURL-pay endpoint for AlbyHub. Returns payRequest metadata (step 1) or generates invoice via NWC with `description_hash` (step 2). Uses `NWC_URL`.
-- `api/payments.js` — Lists incoming payments from AlbyHub via NWC. Returns amount, fees, memo, sender, comment, timestamp, payment_hash. Uses `NWC_URL`.
-- `api/settings.js` — GET/POST site settings stored in Vercel Blob. POST requires `Authorization: Bearer {ADMIN_PASSWORD}`. Uses `BLOB_READ_WRITE_TOKEN`.
-- `api/boost.js` / `api/boosts.js` — BoostBox integration (uses `BOOSTBOX_API_KEY`).
+- `api/lnurlp.js` — LNURL-pay endpoint. Returns payRequest metadata (step 1) or generates invoice via NWC with `description_hash` (step 2). Reads NWC URL from blob settings first, falls back to `NWC_URL` env var.
+- `api/payments.js` — Lists incoming payments via NWC. Returns amount, fees, memo, sender, comment, timestamp, payment_hash. Reads NWC URL from blob settings first, falls back to `NWC_URL` env var.
+- `api/settings.js` — GET/POST site settings stored in Vercel Blob. GET without auth strips secret fields (nwcUrl). GET/POST with `Authorization: Bearer {ADMIN_PASSWORD}` returns full settings including secrets. Uses `BLOB_READ_WRITE_TOKEN`.
+- `api/boost.js` / `api/boosts.js` — BoostBox integration. New payments are automatically sent to BoostBox (tardbox.com) when detected. Uses `BOOSTBOX_API_KEY`.
 
-**Admin panel (`admin.html`):** Password-protected settings page. Configurable: branding title, page title, scan hint text, feed title, invoice amount (USD), accent color, confetti colors, background gradient colors, and background image URL. Settings stored in Vercel Blob storage. Includes live preview of color changes.
+**Admin panel (`admin.html`):** Password-protected settings page. Configurable: branding title, page title, scan hint text, feed title, invoice amount (USD), NWC URL, accent color, confetti colors, background gradient colors, and background image URL. Settings stored in Vercel Blob storage. Includes live preview of color changes. NWC URL can be changed here without redeploying.
 
 **Routing (`vercel.json`):**
 - `/.well-known/lnurlp/:username` rewrites to `/api/lnurlp`
@@ -55,7 +55,7 @@ vercel dev
 
 ## Environment Variables (Vercel)
 
-- `NWC_URL` — NWC connection string for AlbyHub wallet (invoices + payment history)
+- `NWC_URL` — NWC connection string for wallet (invoices + payment history). Can also be set via admin panel (blob setting takes priority over env var).
 - `BLOB_READ_WRITE_TOKEN` — Vercel Blob storage token (required for admin settings)
 - `ADMIN_PASSWORD` — Password for admin panel authentication
 - `BOOSTBOX_API_KEY` — BoostBox API key (optional)
