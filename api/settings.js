@@ -17,6 +17,9 @@ const DEFAULTS = {
     feedTitle: 'Recent Payments',
 };
 
+// Secret fields only returned to authenticated requests
+const SECRET_KEYS = ['nwcUrl'];
+
 async function readSettings() {
     const { blobs } = await list({ prefix: BLOB_PATH });
     if (blobs.length === 0) return {};
@@ -36,7 +39,19 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
         try {
             const stored = await readSettings();
-            return res.status(200).json({ ...DEFAULTS, ...stored });
+            const all = { ...DEFAULTS, ...stored };
+
+            // Check if request is authenticated
+            const password = process.env.ADMIN_PASSWORD;
+            const auth = req.headers.authorization;
+            const isAuthed = password && auth === `Bearer ${password}`;
+
+            // Strip secret fields from unauthenticated responses
+            if (!isAuthed) {
+                for (const key of SECRET_KEYS) delete all[key];
+            }
+
+            return res.status(200).json(all);
         } catch (error) {
             console.error('Failed to read settings:', error.message);
             return res.status(200).json(DEFAULTS);
@@ -60,9 +75,10 @@ export default async function handler(req, res) {
                 return res.status(400).json({ error: 'Invalid request body' });
             }
 
-            // Only allow known keys
+            // Only allow known keys (defaults + secrets)
+            const allowedKeys = [...Object.keys(DEFAULTS), ...SECRET_KEYS];
             const cleaned = {};
-            for (const key of Object.keys(DEFAULTS)) {
+            for (const key of allowedKeys) {
                 if (key in updates) {
                     cleaned[key] = updates[key];
                 }

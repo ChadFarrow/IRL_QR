@@ -1,5 +1,6 @@
 import 'websocket-polyfill';
 import { NWCClient } from '@getalby/sdk/nwc';
+import { list } from '@vercel/blob';
 
 function parseMemo(description) {
     if (!description) return '';
@@ -22,9 +23,17 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const nwcUrl = process.env.NWC_URL;
+    let nwcUrl = process.env.NWC_URL;
+    try {
+        const { blobs } = await list({ prefix: 'settings.json' });
+        if (blobs.length > 0) {
+            const settingsRes = await fetch(blobs[0].url);
+            const settings = await settingsRes.json();
+            if (settings.nwcUrl) nwcUrl = settings.nwcUrl;
+        }
+    } catch (e) { /* fall back to env var */ }
     if (!nwcUrl) {
-        return res.status(500).json({ error: 'Missing env var: NWC_URL must be set' });
+        return res.status(500).json({ error: 'NWC_URL not configured' });
     }
 
     let client;

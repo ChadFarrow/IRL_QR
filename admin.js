@@ -11,6 +11,7 @@ const DEFAULTS = {
     backgroundImage: '',
     confettiColors: '#f7931a,#ffd700,#ff6600,#ffffff,#ff4500',
     feedTitle: 'Recent Payments',
+    nwcUrl: '',
 };
 
 let authToken = '';
@@ -63,7 +64,9 @@ document.getElementById('logout-btn').addEventListener('click', () => {
 // --- Load settings ---
 async function loadSettings() {
     try {
-        const res = await fetch('/api/settings');
+        const res = await fetch('/api/settings', {
+            headers: { 'Authorization': `Bearer ${authToken}` },
+        });
         const settings = await res.json();
         populateForm(settings);
         updatePreview(settings);
