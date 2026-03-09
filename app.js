@@ -147,17 +147,25 @@ async function generateLightningQR(cardEl, logoUrl) {
 function generateStaticQR(cardEl, value, logoUrl) {
     const qrEl = cardEl.querySelector('.qr-code');
     qrEl.innerHTML = '';
-    const qrSize = getQrSize();
-    new QRCode(qrEl, {
-        text: value,
-        width: qrSize,
-        height: qrSize,
-        colorDark: '#000000',
-        colorLight: '#ffffff',
-        correctLevel: logoUrl ? QRCode.CorrectLevel.H : QRCode.CorrectLevel.L,
-    });
-
-    drawLogoOnQR(qrEl, logoUrl);
+    if (!value) {
+        qrEl.innerHTML = '<div style="color: #ff6b6b; padding: 40px;">No URL configured</div>';
+        return;
+    }
+    try {
+        const qrSize = getQrSize();
+        new QRCode(qrEl, {
+            text: value,
+            width: qrSize,
+            height: qrSize,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: logoUrl ? QRCode.CorrectLevel.H : QRCode.CorrectLevel.L,
+        });
+        drawLogoOnQR(qrEl, logoUrl);
+    } catch (error) {
+        console.error('Static QR generation failed:', error);
+        qrEl.innerHTML = `<div style="color: #ff6b6b; padding: 40px;">Failed to generate QR code</div>`;
+    }
 }
 
 function renderQRCards() {
@@ -169,7 +177,9 @@ function renderQRCards() {
         return;
     }
 
+    console.log(`Rendering ${codes.length} QR codes`);
     codes.forEach((qr, index) => {
+        console.log(`QR ${index}: type=${qr.type}, label=${qr.label}, value=${qr.value}`);
         const card = document.createElement('div');
         card.className = 'qr-card';
         card.dataset.index = index;
