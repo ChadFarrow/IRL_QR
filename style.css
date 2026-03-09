@@ -82,7 +82,8 @@ body {
     margin-bottom: 10px;
 }
 
-.qr-code canvas {
+.qr-code canvas,
+.qr-code img:not(.qr-logo) {
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     padding: 10px;
