@@ -72,32 +72,31 @@ function getQrSize() {
 
 function drawLogoOnQR(qrEl, logoUrl, qrSize) {
     if (!logoUrl) return;
-
-    // Use an overlaid <img> element instead of drawing on canvas
-    // This avoids CORS issues with external logo sources
-    const wrapper = document.createElement('div');
-    wrapper.className = 'qr-logo-wrapper';
-
-    // Move canvas into wrapper
     const canvas = qrEl.querySelector('canvas');
     if (!canvas) return;
-    wrapper.appendChild(canvas);
 
-    const img = document.createElement('img');
-    img.className = 'qr-logo';
-    img.src = logoUrl;
-    img.alt = '';
-    img.onerror = () => img.remove();
-    wrapper.appendChild(img);
-    qrEl.appendChild(wrapper);
+    // Fetch logo as blob to bypass CORS, then draw on canvas
+    fetch(logoUrl)
+        .then(r => r.blob())
+        .then(blob => createImageBitmap(blob))
+        .then(bitmap => {
+            const ctx = canvas.getContext('2d');
+            const logoSize = Math.round(canvas.width * 0.22);
+            const x = (canvas.width - logoSize) / 2;
+            const y = (canvas.height - logoSize) / 2;
+            const pad = 6;
+            const r = 8;
 
-    // Size logo after layout so we use the actual rendered canvas size
-    requestAnimationFrame(() => {
-        const rendered = canvas.getBoundingClientRect();
-        const logoSize = Math.round(Math.min(rendered.width, rendered.height) * 0.18);
-        img.style.width = logoSize + 'px';
-        img.style.height = logoSize + 'px';
-    });
+            // White rounded-rect background
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.roundRect(x - pad, y - pad, logoSize + pad * 2, logoSize + pad * 2, r);
+            ctx.fill();
+
+            // Draw logo
+            ctx.drawImage(bitmap, x, y, logoSize, logoSize);
+        })
+        .catch(() => {}); // Logo failed — QR still works
 }
 
 async function generateLightningQR(cardEl, logoUrl) {
