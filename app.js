@@ -1,5 +1,11 @@
 const INVOICE_REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
 
+// Known brand logos (must match admin.js BRAND_MAP)
+const LOGO_MAP = {
+    'getalby.com': '/alby-logo.png',
+    'fountain.fm': '/fountain-logo.png',
+};
+
 // Defaults (overridden by /api/settings)
 let siteSettings = {
     invoiceAmountUsd: 1.25,
@@ -68,6 +74,20 @@ function getQrSize() {
     if (count <= 2) return 400;
     if (count <= 4) return 320;
     return 260;
+}
+
+function resolveLogoUrl(qr) {
+    if (qr.logo && !qr.logo.includes('google.com/s2/favicons')) return qr.logo;
+    try {
+        const hostname = new URL(qr.value).hostname.replace(/^www\./, '');
+        if (LOGO_MAP[hostname]) return LOGO_MAP[hostname];
+        const parts = hostname.split('.');
+        if (parts.length > 2) {
+            const parent = parts.slice(-2).join('.');
+            if (LOGO_MAP[parent]) return LOGO_MAP[parent];
+        }
+    } catch {}
+    return qr.logo || '';
 }
 
 function drawLogoOnQR(qrEl, logoUrl) {
@@ -191,10 +211,11 @@ function renderQRCards() {
         `;
         qrGridEl.appendChild(card);
 
+        const logo = resolveLogoUrl(qr);
         if (qr.type === 'lightning') {
-            generateLightningQR(card, qr.logo);
+            generateLightningQR(card, logo);
         } else {
-            generateStaticQR(card, qr.value, qr.logo);
+            generateStaticQR(card, qr.value, logo);
         }
     });
 }
@@ -205,7 +226,7 @@ function refreshLightningInvoices() {
     cards.forEach((card, index) => {
         if (codes[index] && codes[index].type === 'lightning') {
             cachedBtcPrice = null; // refresh price
-            generateLightningQR(card, codes[index].logo);
+            generateLightningQR(card, resolveLogoUrl(codes[index]));
         }
     });
 }

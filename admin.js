@@ -141,6 +141,17 @@ async function loadSettings() {
         });
         const settings = await res.json();
         qrCodes = settings.qrCodes || [];
+        // Refresh logos from BRAND_MAP (replaces stale Google favicons or broken paths)
+        for (const qr of qrCodes) {
+            if (!qr.value) continue;
+            const brandLogo = getLogoUrl(qr.value);
+            if (!brandLogo || brandLogo === qr.logo) continue;
+            const isGoogleFavicon = qr.logo && qr.logo.includes('google.com/s2/favicons');
+            const isBroken = qr.logo && !qr.logo.startsWith('http') && qr.logo !== brandLogo;
+            if (isGoogleFavicon || isBroken || !qr.logo) {
+                qr.logo = brandLogo;
+            }
+        }
         populateForm(settings);
         renderQRCodesList();
         updatePreview(settings);
