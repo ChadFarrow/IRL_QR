@@ -10,11 +10,12 @@ const DEFAULTS = {
     backgroundColor: '#110404',
     backgroundImage: '/background.png',
     confettiColors: '#f7931a,#ffd700,#ff6600,#ffffff,#ff4500',
-    feedTitle: 'Recent Payments',
+    qrCodes: [],
     nwcUrl: '',
 };
 
 let authToken = '';
+let qrCodes = [];
 
 // --- Login ---
 document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -30,7 +31,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${pw}`,
             },
-            body: JSON.stringify({}), // empty update just to verify password
+            body: JSON.stringify({}),
         });
 
         if (res.status === 401) {
@@ -68,7 +69,9 @@ async function loadSettings() {
             headers: { 'Authorization': `Bearer ${authToken}` },
         });
         const settings = await res.json();
+        qrCodes = settings.qrCodes || [];
         populateForm(settings);
+        renderQRCodesList();
         updatePreview(settings);
     } catch (err) {
         showStatus('Failed to load settings.', 'error');
@@ -78,11 +81,11 @@ async function loadSettings() {
 function populateForm(settings) {
     const form = document.getElementById('settings-form');
     for (const [key, value] of Object.entries(settings)) {
+        if (key === 'qrCodes') continue; // handled separately
         const input = form.elements[key];
         if (input) {
             input.value = value;
         }
-        // Sync color picker ↔ text for color fields
         const textInput = form.elements[key + 'Text'];
         if (textInput) {
             textInput.value = value;
@@ -93,7 +96,8 @@ function populateForm(settings) {
 function getFormData() {
     const form = document.getElementById('settings-form');
     const data = {};
-    for (const key of Object.keys(DEFAULTS)) {
+    const simpleKeys = Object.keys(DEFAULTS).filter(k => k !== 'qrCodes');
+    for (const key of simpleKeys) {
         const input = form.elements[key];
         if (input) {
             if (key === 'invoiceAmountUsd') {
@@ -103,10 +107,81 @@ function getFormData() {
             }
         }
     }
+    data.qrCodes = qrCodes;
     return data;
 }
 
-// --- Color picker ↔ text sync ---
+// --- QR Codes Management ---
+function renderQRCodesList() {
+    const listEl = document.getElementById('qr-codes-list');
+    listEl.innerHTML = '';
+
+    qrCodes.forEach((qr, index) => {
+        const item = document.createElement('div');
+        item.className = 'qr-code-item';
+        item.innerHTML = `
+            <div class="qr-item-header">
+                <span class="qr-item-number">QR Code ${index + 1}</span>
+                <button type="button" class="btn-remove" data-index="${index}">Remove</button>
+            </div>
+            <label>
+                Label
+                <input type="text" data-field="label" data-index="${index}" value="${escapeAttr(qr.label || '')}" placeholder="e.g. Lightning, CashApp, Venmo">
+            </label>
+            <label>
+                Type
+                <select data-field="type" data-index="${index}">
+                    <option value="lightning" ${qr.type === 'lightning' ? 'selected' : ''}>Lightning (auto-generates invoice)</option>
+                    <option value="static" ${qr.type === 'static' ? 'selected' : ''}>Static (fixed URL/address)</option>
+                </select>
+            </label>
+            <label class="value-label" ${qr.type === 'lightning' ? 'style="display:none"' : ''}>
+                Value (URL or address)
+                <input type="text" data-field="value" data-index="${index}" value="${escapeAttr(qr.value || '')}" placeholder="e.g. https://cash.app/$tag">
+            </label>
+            <label>
+                Hint text (optional)
+                <input type="text" data-field="hint" data-index="${index}" value="${escapeAttr(qr.hint || '')}" placeholder="e.g. Scan with CashApp">
+            </label>
+        `;
+        listEl.appendChild(item);
+    });
+
+    // Bind events
+    listEl.querySelectorAll('.btn-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.index);
+            qrCodes.splice(idx, 1);
+            renderQRCodesList();
+        });
+    });
+
+    listEl.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', () => {
+            const idx = parseInt(input.dataset.index);
+            const field = input.dataset.field;
+            qrCodes[idx][field] = input.value;
+
+            // Toggle value field visibility based on type
+            if (field === 'type') {
+                const item = input.closest('.qr-code-item');
+                const valueLabel = item.querySelector('.value-label');
+                valueLabel.style.display = input.value === 'lightning' ? 'none' : '';
+            }
+        });
+    });
+}
+
+document.getElementById('add-qr-btn').addEventListener('click', () => {
+    qrCodes.push({ label: '', type: 'static', value: '', hint: '' });
+    renderQRCodesList();
+});
+
+function escapeAttr(str) {
+    return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// --- Color picker sync ---
 const colorFields = ['accentColor', 'gradientStart', 'gradientMid', 'gradientEnd', 'backgroundColor'];
 const form = document.getElementById('settings-form');
 
@@ -127,7 +202,6 @@ colorFields.forEach(field => {
     }
 });
 
-// Live preview on any input change
 form.addEventListener('input', () => {
     updatePreview(getFormData());
 });
@@ -174,7 +248,9 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
         }
 
         const saved = await res.json();
+        qrCodes = saved.qrCodes || [];
         populateForm(saved);
+        renderQRCodesList();
         updatePreview(saved);
         showStatus('Settings saved! Changes are live.', 'success');
     } catch (err) {
@@ -208,7 +284,9 @@ document.getElementById('reset-btn').addEventListener('click', async () => {
         }
 
         const saved = await res.json();
+        qrCodes = saved.qrCodes || [];
         populateForm(saved);
+        renderQRCodesList();
         updatePreview(saved);
         showStatus('Settings reset to defaults.', 'success');
     } catch (err) {

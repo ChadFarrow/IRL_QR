@@ -13,20 +13,19 @@
 }
 
 body {
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 15px 30px 30px 15px;
+    padding: 15px 30px 30px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .site-header {
     width: 100%;
     text-align: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .header-title {
@@ -37,46 +36,6 @@ body {
     letter-spacing: 6px;
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
     margin: 0;
-}
-
-.wallet-toggle {
-    display: flex;
-    gap: 0;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.toggle-btn {
-    background: rgba(0, 0, 0, 0.4);
-    color: rgba(255, 255, 255, 0.6);
-    border: none;
-    padding: 8px 20px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    font-family: inherit;
-}
-
-.toggle-btn.active {
-    background: var(--accent-color);
-    color: #000;
-}
-
-.toggle-btn:hover:not(.active) {
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.main-layout {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 40px;
-    width: 100%;
-    flex: 1;
-    min-height: 0;
 }
 
 .background {
@@ -90,39 +49,39 @@ body {
     z-index: -1;
 }
 
-.qr-container {
-    position: relative;
+.qr-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+    max-width: 1400px;
+}
+
+.qr-card {
     background: rgba(0, 0, 0, 0.6);
     padding: 25px;
     text-align: center;
-    width: 100%;
-    max-width: 780px;
     border-radius: 16px;
     border: 2px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
+    flex: 0 1 auto;
 }
 
-.invoice-info {
-    font-size: 20px;
-    font-weight: 600;
+.qr-label {
     color: var(--accent-color);
-    margin-top: 10px;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
 }
 
-.scan-hint {
-    font-size: 22px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
-    margin-top: 8px;
-}
-
-#qrcode {
+.qr-code {
     display: flex;
     justify-content: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
-#qrcode img, #qrcode canvas {
+.qr-code img, .qr-code canvas {
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     padding: 10px;
@@ -131,102 +90,25 @@ body {
     height: auto;
 }
 
-.feed-container {
-    flex: 1;
-    min-width: 0;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    max-height: 100%;
-}
-
-.feed-total {
-    text-align: center;
-    font-size: 28px;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 10px;
-    width: 100%;
-}
-
-.total-sats {
-    color: var(--accent-color);
-}
-
-.total-usd {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 20px;
-    font-weight: 500;
-}
-
-.feed-title {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 22px;
+.qr-info {
+    font-size: 18px;
     font-weight: 600;
-    margin-bottom: 14px;
-    text-align: center;
-}
-
-.boost-feed {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-}
-
-.feed-loading, .feed-empty {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 13px;
-    text-align: center;
-    padding: 20px;
-}
-
-.boost-item {
-    background: rgba(0, 0, 0, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    padding: 16px 18px;
-    backdrop-filter: blur(10px);
-}
-
-.boost-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-}
-
-.boost-sender {
     color: var(--accent-color);
-    font-size: 13px;
-    font-weight: 600;
+    margin-top: 8px;
 }
 
-.boost-amount {
-    color: var(--accent-color);
-    font-size: 22px;
-    font-weight: 700;
-}
-
-.boost-usd {
-    color: rgba(255, 255, 255, 0.6);
+.qr-hint {
     font-size: 16px;
     font-weight: 500;
-}
-
-.boost-message {
-    color: rgba(255, 255, 255, 0.95);
-    font-size: 20px;
-    line-height: 1.4;
-    word-break: break-word;
-}
-
-.boost-time {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
     margin-top: 6px;
+}
+
+.qr-empty {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 18px;
+    text-align: center;
+    padding: 60px 20px;
 }
 
 @keyframes confetti-fall {
@@ -236,15 +118,11 @@ body {
 
 @media (max-width: 700px) {
     body {
-        overflow-y: auto;
-        overflow-x: hidden;
         padding: 10px 12px 20px;
-        height: auto;
-        min-height: 100dvh;
     }
 
     .site-header {
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
 
     .header-title {
@@ -252,60 +130,34 @@ body {
         letter-spacing: 3px;
     }
 
-    .main-layout {
+    .qr-grid {
         flex-direction: column;
         align-items: center;
-        gap: 20px;
-        flex: none;
+        gap: 16px;
     }
 
-    .qr-container {
+    .qr-card {
         padding: 16px;
-        max-width: 100%;
+        width: 100%;
+        max-width: 340px;
     }
 
-    #qrcode img, #qrcode canvas {
-        width: 260px !important;
-        height: 260px !important;
+    .qr-label {
+        font-size: 20px;
+        margin-bottom: 8px;
+    }
+
+    .qr-code img, .qr-code canvas {
+        width: 220px !important;
+        height: 220px !important;
         padding: 8px;
     }
 
-    .invoice-info {
-        font-size: 16px;
+    .qr-info {
+        font-size: 14px;
     }
 
-    .scan-hint {
-        font-size: 16px;
-    }
-
-    .feed-container {
-        width: 100%;
-        max-height: none;
-    }
-
-    .feed-title {
-        font-size: 18px;
-        margin-bottom: 10px;
-    }
-
-    .boost-feed {
-        max-height: none;
-        overflow-y: visible;
-    }
-
-    .boost-item {
-        padding: 12px 14px;
-    }
-
-    .boost-amount {
-        font-size: 18px;
-    }
-
-    .boost-message {
-        font-size: 16px;
-    }
-
-    .boost-time {
-        font-size: 12px;
+    .qr-hint {
+        font-size: 14px;
     }
 }
