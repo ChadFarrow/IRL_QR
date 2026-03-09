@@ -47,6 +47,7 @@ body {
     background: radial-gradient(ellipse at center, var(--gradient-start) 0%, var(--gradient-mid) 35%, var(--gradient-end) 65%, var(--bg-color) 100%);
     background-color: var(--bg-color);
     z-index: -1;
+    pointer-events: none;
 }
 
 .qr-grid {
@@ -79,7 +80,9 @@ body {
     position: relative;
     display: flex;
     justify-content: center;
+    align-items: center;
     margin-bottom: 10px;
+    min-height: 420px;
 }
 
 .qr-code img, .qr-code canvas {
@@ -155,6 +158,10 @@ body {
     .qr-label {
         font-size: 20px;
         margin-bottom: 8px;
+    }
+
+    .qr-code {
+        min-height: 240px;
     }
 
     .qr-code img, .qr-code canvas {
