@@ -21,6 +21,8 @@ const BRAND_MAP = {
     'cash.app': { label: 'Cash App', logo: 'https://cash.app/icon-196.png' },
     'venmo.com': { label: 'Venmo', logo: 'https://images.ctfassets.net/gkyt4bl1j2fs/cfvn1GJyFaIw2FwAm5TJO/210be3e6c82eb7cfeebb2a0c577cb26a/venmo-touch-icon.png' },
     'strike.me': { label: 'Strike', logo: '/strike-logo.svg' },
+    'getalby.com': { label: 'Alby', logo: '/alby-logo.svg' },
+    'fountain.fm': { label: 'Fountain', logo: '/fountain-logo.svg' },
     'zelle.com': { label: 'Zelle' },
     'ko-fi.com': { label: 'Ko-fi' },
     'buymeacoffee.com': { label: 'Buy Me a Coffee' },

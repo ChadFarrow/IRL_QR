@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <circle cx="100" cy="100" r="100" fill="#FFDE6E"/>
+  <g transform="translate(100,100)">
+    <!-- Bee body -->
+    <ellipse cx="0" cy="8" rx="32" ry="28" fill="#000"/>
+    <ellipse cx="0" cy="8" rx="28" ry="24" fill="#FFDE6E"/>
+    <!-- Stripes -->
+    <rect x="-20" y="-4" width="40" height="8" rx="4" fill="#000"/>
+    <rect x="-18" y="10" width="36" height="8" rx="4" fill="#000"/>
+    <rect x="-14" y="24" width="28" height="7" rx="3.5" fill="#000"/>
+    <!-- Wings -->
+    <ellipse cx="-22" cy="-16" rx="16" ry="12" fill="rgba(255,255,255,0.7)" transform="rotate(-20)"/>
+    <ellipse cx="22" cy="-16" rx="16" ry="12" fill="rgba(255,255,255,0.7)" transform="rotate(20)"/>
+    <!-- Head -->
+    <circle cx="0" cy="-20" r="14" fill="#000"/>
+    <!-- Eyes -->
+    <circle cx="-6" cy="-22" r="3" fill="#FFDE6E"/>
+    <circle cx="6" cy="-22" r="3" fill="#FFDE6E"/>
+    <!-- Antennae -->
+    <line x1="-5" y1="-33" x2="-12" y2="-44" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="-13" cy="-46" r="3" fill="#000"/>
+    <line x1="5" y1="-33" x2="12" y2="-44" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="13" cy="-46" r="3" fill="#000"/>
+  </g>
+</svg>
