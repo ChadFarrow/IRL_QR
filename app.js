@@ -74,9 +74,23 @@ function drawLogoOnQR(qrEl, logoUrl) {
     if (!logoUrl) return;
 
     const img = document.createElement('img');
-    img.className = 'qr-logo';
     img.src = logoUrl;
     img.alt = '';
+    Object.assign(img.style, {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '48px',
+        height: '48px',
+        borderRadius: '8px',
+        background: 'white',
+        padding: '4px',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+        objectFit: 'contain',
+        zIndex: '10',
+        pointerEvents: 'none',
+    });
     img.onerror = () => img.remove();
     qrEl.appendChild(img);
 }

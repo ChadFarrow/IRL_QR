@@ -82,28 +82,13 @@ body {
     margin-bottom: 10px;
 }
 
-.qr-code canvas,
-.qr-code img:not(.qr-logo) {
+.qr-code img, .qr-code canvas {
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     padding: 10px;
     background: white;
     max-width: 100%;
     height: auto;
-}
-
-.qr-logo {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 48px;
-    height: 48px;
-    border-radius: 8px;
-    background: white;
-    padding: 4px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-    object-fit: contain;
 }
 
 .qr-info {
