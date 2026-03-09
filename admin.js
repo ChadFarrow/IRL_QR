@@ -16,10 +16,10 @@ const DEFAULTS = {
 
 // Brand detection from URL hostnames
 const BRAND_MAP = {
-    'paypal.com': { label: 'PayPal' },
-    'paypal.me': { label: 'PayPal' },
-    'cash.app': { label: 'Cash App' },
-    'venmo.com': { label: 'Venmo' },
+    'paypal.com': { label: 'PayPal', logo: 'https://www.paypalobjects.com/webstatic/icon/pp258.png' },
+    'paypal.me': { label: 'PayPal', logo: 'https://www.paypalobjects.com/webstatic/icon/pp258.png' },
+    'cash.app': { label: 'Cash App', logo: 'https://cash.app/icon-196.png' },
+    'venmo.com': { label: 'Venmo', logo: 'https://images.ctfassets.net/gkyt4bl1j2fs/cfvn1GJyFaIw2FwAm5TJO/210be3e6c82eb7cfeebb2a0c577cb26a/venmo-touch-icon.png' },
     'strike.me': { label: 'Strike' },
     'zelle.com': { label: 'Zelle' },
     'ko-fi.com': { label: 'Ko-fi' },
@@ -53,7 +53,16 @@ function detectBrandFromUrl(url) {
 function getLogoUrl(url) {
     try {
         const hostname = new URL(url).hostname.replace(/^www\./, '');
-        return `https://logo.clearbit.com/${hostname}`;
+        // Check BRAND_MAP for a known logo first
+        const brand = BRAND_MAP[hostname];
+        if (brand && brand.logo) return brand.logo;
+        const parts = hostname.split('.');
+        if (parts.length > 2) {
+            const parent = parts.slice(-2).join('.');
+            if (BRAND_MAP[parent] && BRAND_MAP[parent].logo) return BRAND_MAP[parent].logo;
+        }
+        // Fallback to Google's favicon service
+        return `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
     } catch {
         return '';
     }

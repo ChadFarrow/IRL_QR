@@ -72,32 +72,28 @@ function getQrSize() {
 
 function drawLogoOnQR(qrEl, logoUrl, qrSize) {
     if (!logoUrl) return;
+
+    // Use an overlaid <img> element instead of drawing on canvas
+    // This avoids CORS issues with external logo sources
+    const wrapper = document.createElement('div');
+    wrapper.className = 'qr-logo-wrapper';
+
+    // Move canvas into wrapper
     const canvas = qrEl.querySelector('canvas');
     if (!canvas) return;
+    wrapper.appendChild(canvas);
 
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-        const ctx = canvas.getContext('2d');
-        const logoSize = Math.round(qrSize * 0.22);
-        const x = (canvas.width - logoSize) / 2;
-        const y = (canvas.height - logoSize) / 2;
-        const pad = 6;
-        const r = 8;
-
-        // White rounded-rect background
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.roundRect(x - pad, y - pad, logoSize + pad * 2, logoSize + pad * 2, r);
-        ctx.fill();
-
-        // Draw logo
-        ctx.drawImage(img, x, y, logoSize, logoSize);
-    };
-    img.onerror = () => {
-        // Logo failed to load — QR code still works without it
-    };
+    const logoSize = Math.round(qrSize * 0.22);
+    const img = document.createElement('img');
+    img.className = 'qr-logo';
     img.src = logoUrl;
+    img.alt = '';
+    img.style.width = logoSize + 'px';
+    img.style.height = logoSize + 'px';
+    img.onerror = () => img.remove(); // Hide if logo fails to load
+    wrapper.appendChild(img);
+
+    qrEl.appendChild(wrapper);
 }
 
 async function generateLightningQR(cardEl, logoUrl) {
