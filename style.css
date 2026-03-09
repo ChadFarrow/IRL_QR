@@ -91,6 +91,15 @@ body {
     height: auto;
 }
 
+.qr-code > img[data-logo] {
+    max-width: 48px !important;
+    max-height: 48px !important;
+    width: 48px !important;
+    height: 48px !important;
+    padding: 4px !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2) !important;
+}
+
 .qr-info {
     font-size: 18px;
     font-weight: 600;

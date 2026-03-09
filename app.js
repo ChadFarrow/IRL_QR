@@ -76,6 +76,7 @@ function drawLogoOnQR(qrEl, logoUrl) {
     const img = document.createElement('img');
     img.src = logoUrl;
     img.alt = '';
+    img.dataset.logo = 'true';
     Object.assign(img.style, {
         position: 'absolute',
         top: '50%',
