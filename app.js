@@ -87,10 +87,17 @@ function drawLogoOnQR(qrEl, logoUrl, qrSize) {
     img.className = 'qr-logo';
     img.src = logoUrl;
     img.alt = '';
-    img.onerror = () => img.remove(); // Hide if logo fails to load
+    img.onerror = () => img.remove();
     wrapper.appendChild(img);
-
     qrEl.appendChild(wrapper);
+
+    // Size logo after layout so we use the actual rendered canvas size
+    requestAnimationFrame(() => {
+        const rendered = canvas.getBoundingClientRect();
+        const logoSize = Math.round(Math.min(rendered.width, rendered.height) * 0.18);
+        img.style.width = logoSize + 'px';
+        img.style.height = logoSize + 'px';
+    });
 }
 
 async function generateLightningQR(cardEl, logoUrl) {
