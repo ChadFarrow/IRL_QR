@@ -271,7 +271,7 @@ function renderQRCodesList() {
                         if (labelInput) labelInput.value = brand.label;
                     }
                     // Auto-fill logo
-                    const logoUrl = getLogoUrl(input.value);
+                    const logoUrl = getLogoUrl(normalized);
                     if (!qrCodes[idx].logo || qrCodes[idx]._autoLogo) {
                         qrCodes[idx].logo = logoUrl;
                         qrCodes[idx]._autoLogo = true;
