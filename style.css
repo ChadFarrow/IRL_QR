@@ -94,6 +94,7 @@ body {
 .qr-logo-wrapper {
     position: relative;
     display: inline-block;
+    max-width: 100%;
 }
 
 .qr-logo {
