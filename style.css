@@ -88,6 +88,7 @@ body {
     background: white;
     max-width: 100%;
     height: auto;
+    display: block;
 }
 
 .qr-logo-wrapper {
@@ -97,9 +98,11 @@ body {
 
 .qr-logo {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
     border-radius: 6px;
     background: white;
     padding: 4px;
