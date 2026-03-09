@@ -70,33 +70,15 @@ function getQrSize() {
     return 260;
 }
 
-function drawLogoOnQR(qrEl, logoUrl, qrSize) {
+function drawLogoOnQR(qrEl, logoUrl) {
     if (!logoUrl) return;
-    const canvas = qrEl.querySelector('canvas');
-    if (!canvas) return;
 
-    // Fetch logo as blob to bypass CORS, then draw on canvas
-    fetch(logoUrl)
-        .then(r => r.blob())
-        .then(blob => createImageBitmap(blob))
-        .then(bitmap => {
-            const ctx = canvas.getContext('2d');
-            const logoSize = Math.round(canvas.width * 0.22);
-            const x = (canvas.width - logoSize) / 2;
-            const y = (canvas.height - logoSize) / 2;
-            const pad = 6;
-            const r = 8;
-
-            // White rounded-rect background
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.roundRect(x - pad, y - pad, logoSize + pad * 2, logoSize + pad * 2, r);
-            ctx.fill();
-
-            // Draw logo
-            ctx.drawImage(bitmap, x, y, logoSize, logoSize);
-        })
-        .catch(() => {}); // Logo failed — QR still works
+    const img = document.createElement('img');
+    img.className = 'qr-logo';
+    img.src = logoUrl;
+    img.alt = '';
+    img.onerror = () => img.remove();
+    qrEl.appendChild(img);
 }
 
 async function generateLightningQR(cardEl, logoUrl) {
@@ -139,7 +121,7 @@ async function generateLightningQR(cardEl, logoUrl) {
             correctLevel: logoUrl ? QRCode.CorrectLevel.H : QRCode.CorrectLevel.L,
         });
 
-        drawLogoOnQR(qrEl, logoUrl, qrSize);
+        drawLogoOnQR(qrEl, logoUrl);
         infoEl.textContent = `$${amountUsd.toFixed(2)} (~${sats.toLocaleString()} sats)`;
     } catch (error) {
         console.error('Invoice generation failed:', error);
@@ -160,7 +142,7 @@ function generateStaticQR(cardEl, value, logoUrl) {
         correctLevel: logoUrl ? QRCode.CorrectLevel.H : QRCode.CorrectLevel.L,
     });
 
-    drawLogoOnQR(qrEl, logoUrl, qrSize);
+    drawLogoOnQR(qrEl, logoUrl);
 }
 
 function renderQRCards() {
