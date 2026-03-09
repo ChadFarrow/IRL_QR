@@ -20,7 +20,7 @@ const BRAND_MAP = {
     'paypal.me': { label: 'PayPal', logo: 'https://www.paypalobjects.com/webstatic/icon/pp258.png' },
     'cash.app': { label: 'Cash App', logo: 'https://cash.app/icon-196.png' },
     'venmo.com': { label: 'Venmo', logo: 'https://images.ctfassets.net/gkyt4bl1j2fs/cfvn1GJyFaIw2FwAm5TJO/210be3e6c82eb7cfeebb2a0c577cb26a/venmo-touch-icon.png' },
-    'strike.me': { label: 'Strike' },
+    'strike.me': { label: 'Strike', logo: 'https://strike.me/favicon-196.png' },
     'zelle.com': { label: 'Zelle' },
     'ko-fi.com': { label: 'Ko-fi' },
     'buymeacoffee.com': { label: 'Buy Me a Coffee' },
@@ -33,6 +33,21 @@ const BRAND_MAP = {
     'checkout.stripe.com': { label: 'Stripe' },
     'donate.stripe.com': { label: 'Stripe' },
 };
+
+// Normalize shorthand payment addresses to full URLs
+// e.g. "chadf@strike.me" -> "https://strike.me/chadf"
+function normalizePaymentValue(value) {
+    const trimmed = value.trim();
+    // Match user@domain patterns (e.g. chadf@strike.me)
+    const emailMatch = trimmed.match(/^([^@\s]+)@([^@\s]+\.[^@\s]+)$/);
+    if (emailMatch) {
+        const [, user, domain] = emailMatch;
+        if (BRAND_MAP[domain]) {
+            return `https://${domain}/${user}`;
+        }
+    }
+    return trimmed;
+}
 
 function detectBrandFromUrl(url) {
     try {
@@ -237,7 +252,12 @@ function renderQRCodesList() {
 
             // Auto-detect brand when URL is pasted/typed
             if (field === 'value') {
-                const brand = detectBrandFromUrl(input.value);
+                const normalized = normalizePaymentValue(input.value);
+                if (normalized !== input.value) {
+                    input.value = normalized;
+                    qrCodes[idx].value = normalized;
+                }
+                const brand = detectBrandFromUrl(normalized);
                 const detectMsg = document.getElementById(`detect-msg-${idx}`);
                 const item = input.closest('.qr-code-item');
                 const labelInput = item.querySelector('[data-field="label"]');
