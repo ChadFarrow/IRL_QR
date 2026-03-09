@@ -83,13 +83,10 @@ function drawLogoOnQR(qrEl, logoUrl, qrSize) {
     if (!canvas) return;
     wrapper.appendChild(canvas);
 
-    const logoSize = Math.round(qrSize * 0.22);
     const img = document.createElement('img');
     img.className = 'qr-logo';
     img.src = logoUrl;
     img.alt = '';
-    img.style.width = logoSize + 'px';
-    img.style.height = logoSize + 'px';
     img.onerror = () => img.remove(); // Hide if logo fails to load
     wrapper.appendChild(img);
 
