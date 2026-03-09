@@ -314,6 +314,13 @@ label input:focus {
     border-color: #f7931a;
 }
 
+.auto-detect-msg {
+    display: block;
+    font-size: 12px;
+    margin-top: 4px;
+    min-height: 16px;
+}
+
 .btn-add {
     display: block;
     width: 100%;

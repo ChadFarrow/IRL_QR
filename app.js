@@ -70,7 +70,37 @@ function getQrSize() {
     return 260;
 }
 
-async function generateLightningQR(cardEl) {
+function drawLogoOnQR(qrEl, logoUrl, qrSize) {
+    if (!logoUrl) return;
+    const canvas = qrEl.querySelector('canvas');
+    if (!canvas) return;
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+        const ctx = canvas.getContext('2d');
+        const logoSize = Math.round(qrSize * 0.22);
+        const x = (canvas.width - logoSize) / 2;
+        const y = (canvas.height - logoSize) / 2;
+        const pad = 6;
+        const r = 8;
+
+        // White rounded-rect background
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.roundRect(x - pad, y - pad, logoSize + pad * 2, logoSize + pad * 2, r);
+        ctx.fill();
+
+        // Draw logo
+        ctx.drawImage(img, x, y, logoSize, logoSize);
+    };
+    img.onerror = () => {
+        // Logo failed to load — QR code still works without it
+    };
+    img.src = logoUrl;
+}
+
+async function generateLightningQR(cardEl, logoUrl) {
     const qrEl = cardEl.querySelector('.qr-code');
     const infoEl = cardEl.querySelector('.qr-info');
     qrEl.innerHTML = '<div style="color: rgba(255,255,255,0.6); padding: 40px;">Generating invoice...</div>';
@@ -107,9 +137,10 @@ async function generateLightningQR(cardEl) {
             height: qrSize,
             colorDark: '#000000',
             colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.L,
+            correctLevel: logoUrl ? QRCode.CorrectLevel.H : QRCode.CorrectLevel.L,
         });
 
+        drawLogoOnQR(qrEl, logoUrl, qrSize);
         infoEl.textContent = `$${amountUsd.toFixed(2)} (~${sats.toLocaleString()} sats)`;
     } catch (error) {
         console.error('Invoice generation failed:', error);
@@ -117,7 +148,7 @@ async function generateLightningQR(cardEl) {
     }
 }
 
-function generateStaticQR(cardEl, value) {
+function generateStaticQR(cardEl, value, logoUrl) {
     const qrEl = cardEl.querySelector('.qr-code');
     qrEl.innerHTML = '';
     const qrSize = getQrSize();
@@ -127,8 +158,10 @@ function generateStaticQR(cardEl, value) {
         height: qrSize,
         colorDark: '#000000',
         colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.L,
+        correctLevel: logoUrl ? QRCode.CorrectLevel.H : QRCode.CorrectLevel.L,
     });
+
+    drawLogoOnQR(qrEl, logoUrl, qrSize);
 }
 
 function renderQRCards() {
@@ -153,9 +186,9 @@ function renderQRCards() {
         qrGridEl.appendChild(card);
 
         if (qr.type === 'lightning') {
-            generateLightningQR(card);
+            generateLightningQR(card, qr.logo);
         } else {
-            generateStaticQR(card, qr.value);
+            generateStaticQR(card, qr.value, qr.logo);
         }
     });
 }
@@ -166,7 +199,7 @@ function refreshLightningInvoices() {
     cards.forEach((card, index) => {
         if (codes[index] && codes[index].type === 'lightning') {
             cachedBtcPrice = null; // refresh price
-            generateLightningQR(card);
+            generateLightningQR(card, codes[index].logo);
         }
     });
 }

@@ -14,6 +14,51 @@ const DEFAULTS = {
     nwcUrl: '',
 };
 
+// Brand detection from URL hostnames
+const BRAND_MAP = {
+    'paypal.com': { label: 'PayPal' },
+    'paypal.me': { label: 'PayPal' },
+    'cash.app': { label: 'Cash App' },
+    'venmo.com': { label: 'Venmo' },
+    'strike.me': { label: 'Strike' },
+    'zelle.com': { label: 'Zelle' },
+    'ko-fi.com': { label: 'Ko-fi' },
+    'buymeacoffee.com': { label: 'Buy Me a Coffee' },
+    'gofundme.com': { label: 'GoFundMe' },
+    'patreon.com': { label: 'Patreon' },
+    'givebutter.com': { label: 'Givebutter' },
+    'donorbox.org': { label: 'Donorbox' },
+    'square.link': { label: 'Square' },
+    'stripe.com': { label: 'Stripe' },
+    'checkout.stripe.com': { label: 'Stripe' },
+    'donate.stripe.com': { label: 'Stripe' },
+};
+
+function detectBrandFromUrl(url) {
+    try {
+        const hostname = new URL(url).hostname.replace(/^www\./, '');
+        // Check exact match first, then parent domain
+        if (BRAND_MAP[hostname]) return BRAND_MAP[hostname];
+        const parts = hostname.split('.');
+        if (parts.length > 2) {
+            const parent = parts.slice(-2).join('.');
+            if (BRAND_MAP[parent]) return BRAND_MAP[parent];
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+function getLogoUrl(url) {
+    try {
+        const hostname = new URL(url).hostname.replace(/^www\./, '');
+        return `https://logo.clearbit.com/${hostname}`;
+    } catch {
+        return '';
+    }
+}
+
 let authToken = '';
 let qrCodes = [];
 
@@ -107,7 +152,8 @@ function getFormData() {
             }
         }
     }
-    data.qrCodes = qrCodes;
+    // Strip internal tracking flags from QR codes before saving
+    data.qrCodes = qrCodes.map(({ _autoLabel, _autoLogo, ...rest }) => rest);
     return data;
 }
 
@@ -125,10 +171,6 @@ function renderQRCodesList() {
                 <button type="button" class="btn-remove" data-index="${index}">Remove</button>
             </div>
             <label>
-                Label
-                <input type="text" data-field="label" data-index="${index}" value="${escapeAttr(qr.label || '')}" placeholder="e.g. Lightning, CashApp, Venmo">
-            </label>
-            <label>
                 Type
                 <select data-field="type" data-index="${index}">
                     <option value="lightning" ${qr.type === 'lightning' ? 'selected' : ''}>Lightning (auto-generates invoice)</option>
@@ -138,6 +180,15 @@ function renderQRCodesList() {
             <label class="value-label" ${qr.type === 'lightning' ? 'style="display:none"' : ''}>
                 Value (URL or address)
                 <input type="text" data-field="value" data-index="${index}" value="${escapeAttr(qr.value || '')}" placeholder="e.g. https://cash.app/$tag">
+                <span class="auto-detect-msg" id="detect-msg-${index}"></span>
+            </label>
+            <label>
+                Label
+                <input type="text" data-field="label" data-index="${index}" value="${escapeAttr(qr.label || '')}" placeholder="Auto-detected from URL, or type manually">
+            </label>
+            <label>
+                Logo URL (optional, shown in QR center)
+                <input type="text" data-field="logo" data-index="${index}" value="${escapeAttr(qr.logo || '')}" placeholder="Auto-detected from URL">
             </label>
             <label>
                 Hint text (optional)
@@ -167,7 +218,55 @@ function renderQRCodesList() {
                 const item = input.closest('.qr-code-item');
                 const valueLabel = item.querySelector('.value-label');
                 valueLabel.style.display = input.value === 'lightning' ? 'none' : '';
+                // Auto-set label/logo for lightning type
+                if (input.value === 'lightning' && !qrCodes[idx].label) {
+                    qrCodes[idx].label = 'Lightning';
+                    const labelInput = item.querySelector('[data-field="label"]');
+                    if (labelInput) labelInput.value = 'Lightning';
+                }
             }
+
+            // Auto-detect brand when URL is pasted/typed
+            if (field === 'value') {
+                const brand = detectBrandFromUrl(input.value);
+                const detectMsg = document.getElementById(`detect-msg-${idx}`);
+                const item = input.closest('.qr-code-item');
+                const labelInput = item.querySelector('[data-field="label"]');
+                const logoInput = item.querySelector('[data-field="logo"]');
+
+                if (brand) {
+                    // Auto-fill label if empty or was previously auto-set
+                    if (!qrCodes[idx].label || qrCodes[idx]._autoLabel) {
+                        qrCodes[idx].label = brand.label;
+                        qrCodes[idx]._autoLabel = true;
+                        if (labelInput) labelInput.value = brand.label;
+                    }
+                    // Auto-fill logo
+                    const logoUrl = getLogoUrl(input.value);
+                    if (!qrCodes[idx].logo || qrCodes[idx]._autoLogo) {
+                        qrCodes[idx].logo = logoUrl;
+                        qrCodes[idx]._autoLogo = true;
+                        if (logoInput) logoInput.value = logoUrl;
+                    }
+                    if (detectMsg) {
+                        detectMsg.textContent = `Detected: ${brand.label}`;
+                        detectMsg.style.color = '#4caf50';
+                    }
+                } else {
+                    // Try to get logo from any valid URL
+                    const logoUrl = getLogoUrl(input.value);
+                    if (logoUrl && (!qrCodes[idx].logo || qrCodes[idx]._autoLogo)) {
+                        qrCodes[idx].logo = logoUrl;
+                        qrCodes[idx]._autoLogo = true;
+                        if (logoInput) logoInput.value = logoUrl;
+                    }
+                    if (detectMsg) detectMsg.textContent = '';
+                }
+            }
+
+            // Clear auto flags when user manually edits label/logo
+            if (field === 'label') qrCodes[idx]._autoLabel = false;
+            if (field === 'logo') qrCodes[idx]._autoLogo = false;
         });
     });
 }
