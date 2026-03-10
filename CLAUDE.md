@@ -27,7 +27,7 @@ vercel dev
 - QR codes are rendered in a responsive flex-wrap grid (3+2 layout on desktop, single column on mobile)
 - QR size adapts to count: 400px for ≤2, 320px for ≤4, 260px for 5+
 - Each QR card can have a label, hint text, and center logo overlay
-- `LOGO_MAP` resolves brand logos at render time, overriding stale saved paths
+- Logo URLs are resolved by the admin panel (`BRAND_MAP` in `admin.js`) and saved into `qr.logo`; `app.js` uses the saved value directly
 
 **Lightning QR flow:**
 1. Loads site settings from `/api/settings`
@@ -41,10 +41,14 @@ vercel dev
 9. Grand total of all visible payments shown above the QR grid
 
 **API endpoints:**
-- `api/lnurlp.js` — LNURL-pay endpoint. Returns payRequest metadata (step 1) or generates invoice via NWC with `description_hash` (step 2). Reads NWC URL from blob settings first, falls back to `NWC_URL` env var.
-- `api/payments.js` — Lists incoming payments via NWC. Returns amount, fees, memo, sender, comment, timestamp, payment_hash. Reads NWC URL from blob settings first, falls back to `NWC_URL` env var.
+- `api/lnurlp.js` — LNURL-pay endpoint. Returns payRequest metadata (step 1) or generates invoice via NWC with `description_hash` (step 2). Full CORS + OPTIONS handling for wallet preflight.
+- `api/payments.js` — Lists incoming payments via NWC. Returns amount, fees, memo, sender, comment, timestamp, payment_hash. CORS enabled.
 - `api/settings.js` — GET/POST site settings stored in Vercel Blob. GET without auth strips secret fields (nwcUrl). GET/POST with `Authorization: Bearer {ADMIN_PASSWORD}` returns full settings including secrets. Uses `BLOB_READ_WRITE_TOKEN`.
-- `api/boost.js` / `api/boosts.js` — BoostBox integration. New payments are automatically sent to BoostBox (tardbox.com) when detected. Uses `BOOSTBOX_API_KEY`.
+- `api/boost.js` / `api/boosts.js` — BoostBox integration. New payments are automatically sent to BoostBox (tardbox.com) when detected. Uses `BOOSTBOX_API_KEY`. CORS + OPTIONS handling.
+
+**Shared modules (`api/lib/`):**
+- `api/lib/nwc.js` — `getNwcUrl()` loads NWC URL from blob settings first, falls back to `NWC_URL` env var. Used by `lnurlp.js` and `payments.js`.
+- `api/lib/boostbox.js` — `BOOSTBOX_URL` constant and `getBoostBoxApiKey()` helper. Used by `boost.js` and `boosts.js`.
 
 **Admin panel (`admin.html`):** Password-protected settings page. Configurable: branding title, page title, scan hint text, feed title, invoice amount (USD), NWC URL, accent color, confetti colors, background gradient colors, and background image URL. QR code management: add/remove/reorder multiple QR codes, each with type (lightning/static), label, URL/address, hint text, and optional logo URL. `BRAND_MAP` auto-detects labels and logos from known domains (Strike, CashApp, Venmo, Alby, Fountain, etc.). Settings stored in Vercel Blob storage. Includes live preview of color changes. NWC URL can be changed here without redeploying.
 
@@ -66,7 +70,7 @@ Local logo files for QR code overlays:
 - `alby-logo.png` — Alby wallet bee logomark (from getAlby/media GitHub repo)
 - `fountain-logo.png` — Fountain podcast app logo (stylized F with orange gradient)
 
-Brand detection in `admin.js` (`BRAND_MAP`) and logo resolution in `app.js` (`LOGO_MAP`) ensure these are used automatically for known domains, even if blob storage has stale paths.
+Brand detection in `admin.js` (`BRAND_MAP`) auto-detects and saves logo URLs for known domains when QR codes are configured. `app.js` uses the saved `qr.logo` value directly.
 
 ## Environment Variables (Vercel)
 

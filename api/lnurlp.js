@@ -1,12 +1,18 @@
 import 'websocket-polyfill';
 import { createHash } from 'crypto';
 import { NWCClient } from '@getalby/sdk/nwc';
-import { list } from '@vercel/blob';
+import { getNwcUrl } from './lib/nwc.js';
 
 const metadata = JSON.stringify([['text/plain', 'SXWORLDWIDE Lightning Payment']]);
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        return res.status(204).end();
+    }
 
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
@@ -29,17 +35,9 @@ export default async function handler(req, res) {
     }
 
     // Amount provided — generate invoice via NWC (step 2)
-    let nwcUrl = process.env.NWC_URL;
-    try {
-        const { blobs } = await list({ prefix: 'settings.json' });
-        if (blobs.length > 0) {
-            const settingsRes = await fetch(blobs[0].url);
-            const settings = await settingsRes.json();
-            if (settings.nwcUrl) nwcUrl = settings.nwcUrl;
-        }
-    } catch (e) { /* fall back to env var */ }
+    const nwcUrl = await getNwcUrl();
     if (!nwcUrl) {
-        return res.status(500).json({ error: 'Missing NWC_URL' });
+        return res.status(500).json({ error: 'NWC_URL not configured' });
     }
 
     const msats = parseInt(amount, 10);

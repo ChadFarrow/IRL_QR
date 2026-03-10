@@ -1,11 +1,5 @@
 const INVOICE_REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
 
-// Known brand logos (must match admin.js BRAND_MAP)
-const LOGO_MAP = {
-    'getalby.com': '/alby-logo.png',
-    'fountain.fm': '/fountain-logo.png',
-};
-
 // Defaults (overridden by /api/settings)
 let siteSettings = {
     invoiceAmountUsd: 1.25,
@@ -77,16 +71,6 @@ function getQrSize() {
 }
 
 function resolveLogoUrl(qr) {
-    if (qr.logo && !qr.logo.includes('google.com/s2/favicons')) return qr.logo;
-    try {
-        const hostname = new URL(qr.value).hostname.replace(/^www\./, '');
-        if (LOGO_MAP[hostname]) return LOGO_MAP[hostname];
-        const parts = hostname.split('.');
-        if (parts.length > 2) {
-            const parent = parts.slice(-2).join('.');
-            if (LOGO_MAP[parent]) return LOGO_MAP[parent];
-        }
-    } catch {}
     return qr.logo || '';
 }
 

@@ -1,11 +1,9 @@
 import 'websocket-polyfill';
 import { NWCClient } from '@getalby/sdk/nwc';
-import { list } from '@vercel/blob';
+import { getNwcUrl } from './lib/nwc.js';
 
 function parseMemo(description) {
     if (!description) return '';
-    // NWC descriptions can be JSON metadata like:
-    // [["text/plain","Paying chadf@coinos.io"],["text/identifier","chadf@coinos.io"]]
     try {
         const parsed = JSON.parse(description);
         if (Array.isArray(parsed)) {
@@ -19,19 +17,13 @@ function parseMemo(description) {
 }
 
 export default async function handler(req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    let nwcUrl = process.env.NWC_URL;
-    try {
-        const { blobs } = await list({ prefix: 'settings.json' });
-        if (blobs.length > 0) {
-            const settingsRes = await fetch(blobs[0].url);
-            const settings = await settingsRes.json();
-            if (settings.nwcUrl) nwcUrl = settings.nwcUrl;
-        }
-    } catch (e) { /* fall back to env var */ }
+    const nwcUrl = await getNwcUrl();
     if (!nwcUrl) {
         return res.status(500).json({ error: 'NWC_URL not configured' });
     }
