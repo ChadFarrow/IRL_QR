@@ -1,10 +1,10 @@
-const BOOSTBOX_URL = 'https://tardbox.com';
+import { BOOSTBOX_URL, getBoostBoxApiKey } from './lib/boostbox.js';
 
 export default async function handler(req, res) {
-    const apiKey = process.env.BOOSTBOX_API_KEY;
-    if (!apiKey) {
-        return res.status(500).json({ error: 'BOOSTBOX_API_KEY not configured' });
-    }
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    const apiKey = getBoostBoxApiKey(res);
+    if (!apiKey) return;
 
     if (req.method === 'GET') {
         try {

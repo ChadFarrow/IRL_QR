@@ -1,4 +1,3 @@
-const FEED_POLL_INTERVAL = 10000;
 const INVOICE_REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes
 
 // Defaults (overridden by /api/settings)
@@ -14,12 +13,10 @@ let siteSettings = {
     backgroundColor: '#110404',
     backgroundImage: 'https://raw.githubusercontent.com/ChadFarrow/IRL_QR/refs/heads/main/curtains1.png',
     confettiColors: '#f7931a,#ffd700,#ff6600,#ffffff,#ff4500',
-    feedTitle: 'Recent Payments',
+    qrCodes: [],
 };
 
-const qrcodeEl = document.getElementById('qrcode');
-const paymentFeedEl = document.getElementById('boost-feed');
-const invoiceInfoEl = document.getElementById('invoice-info');
+const qrGridEl = document.getElementById('qr-grid');
 
 function applySettings(settings) {
     siteSettings = { ...siteSettings, ...settings };
@@ -29,10 +26,6 @@ function applySettings(settings) {
     document.title = siteSettings.pageTitle;
     const titleEl = document.querySelector('.header-title');
     if (titleEl) titleEl.textContent = siteSettings.brandingTitle;
-    const hintEl = document.querySelector('.scan-hint');
-    if (hintEl) hintEl.textContent = siteSettings.scanHintText;
-    const feedTitleEl = document.querySelector('.feed-title');
-    if (feedTitleEl) feedTitleEl.textContent = siteSettings.feedTitle;
 
     // CSS custom properties
     root.style.setProperty('--accent-color', siteSettings.accentColor);
@@ -66,24 +59,67 @@ async function loadSiteSettings() {
     }
 }
 
-async function generateInvoiceQR() {
-    qrcodeEl.innerHTML = '<div style="color: rgba(255,255,255,0.6); padding: 40px;">Generating invoice...</div>';
-    invoiceInfoEl.textContent = '';
-    try {
-        // 1. Fetch current BTC price
-        const priceRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-        if (!priceRes.ok) throw new Error('Failed to fetch BTC price');
-        const priceData = await priceRes.json();
-        const btcPrice = priceData.bitcoin.usd;
-        cachedBtcPrice = btcPrice;
+// BTC price cache (updated during invoice generation)
+let cachedBtcPrice = null;
 
-        // 2. Convert USD to millisatoshis
+function getQrSize() {
+    const count = siteSettings.qrCodes.length;
+    if (window.innerWidth <= 700) return 220;
+    if (count <= 2) return 400;
+    if (count <= 4) return 320;
+    return 260;
+}
+
+function resolveLogoUrl(qr) {
+    return qr.logo || '';
+}
+
+function drawLogoOnQR(qrEl, logoUrl) {
+    if (!logoUrl) return;
+
+    const img = document.createElement('img');
+    img.src = logoUrl;
+    img.alt = '';
+    img.dataset.logo = 'true';
+    Object.assign(img.style, {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '48px',
+        height: '48px',
+        borderRadius: '8px',
+        background: 'white',
+        padding: '4px',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+        objectFit: 'contain',
+        zIndex: '10',
+        pointerEvents: 'none',
+    });
+    img.onerror = () => img.remove();
+    qrEl.appendChild(img);
+}
+
+async function generateLightningQR(cardEl, logoUrl) {
+    const qrEl = cardEl.querySelector('.qr-code');
+    const infoEl = cardEl.querySelector('.qr-info');
+    qrEl.innerHTML = '<div style="color: rgba(255,255,255,0.6); padding: 40px;">Generating invoice...</div>';
+    infoEl.textContent = '';
+
+    try {
+        // Fetch BTC price if not cached
+        if (!cachedBtcPrice) {
+            const priceRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+            if (!priceRes.ok) throw new Error('Failed to fetch BTC price');
+            const priceData = await priceRes.json();
+            cachedBtcPrice = priceData.bitcoin.usd;
+        }
+
         const amountUsd = siteSettings.invoiceAmountUsd;
-        const btcAmount = amountUsd / btcPrice;
+        const btcAmount = amountUsd / cachedBtcPrice;
         const sats = Math.round(btcAmount * 1e8);
         const msats = sats * 1000;
 
-        // 3. Call LNURL-pay callback with amount to get bolt11 invoice
         const invoiceRes = await fetch(`/api/lnurlp?amount=${msats}`);
         if (!invoiceRes.ok) {
             const err = await invoiceRes.json().catch(() => ({}));
@@ -91,62 +127,92 @@ async function generateInvoiceQR() {
         }
         const invoiceData = await invoiceRes.json();
         const bolt11 = invoiceData.pr;
-
         if (!bolt11) throw new Error('No invoice returned');
 
-        // 4. Display bolt11 invoice in QR code
-        qrcodeEl.innerHTML = '';
-        const qrSize = window.innerWidth <= 700 ? 260 : 500;
-        new QRCode(qrcodeEl, {
+        qrEl.innerHTML = '';
+        const qrSize = getQrSize();
+        new QRCode(qrEl, {
             text: bolt11.toUpperCase(),
             width: qrSize,
             height: qrSize,
             colorDark: '#000000',
             colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.L
+            correctLevel: logoUrl ? QRCode.CorrectLevel.H : QRCode.CorrectLevel.L,
         });
 
-        // 5. Show amount info
-        invoiceInfoEl.textContent = `$${amountUsd.toFixed(2)} (~${sats.toLocaleString()} sats)`;
-
+        drawLogoOnQR(qrEl, logoUrl);
+        infoEl.textContent = `$${amountUsd.toFixed(2)} (~${sats.toLocaleString()} sats)`;
     } catch (error) {
         console.error('Invoice generation failed:', error);
-        qrcodeEl.innerHTML = `<div style="color: #ff6b6b; padding: 40px;">Failed to generate invoice: ${error.message}</div>`;
+        qrEl.innerHTML = `<div style="color: #ff6b6b; padding: 40px;">Failed to generate invoice: ${error.message}</div>`;
     }
 }
 
-// BTC price cache (updated during invoice generation)
-let cachedBtcPrice = null;
-
-// Payment feed
-function formatSats(sats) {
-    return Math.abs(sats).toLocaleString() + ' sats';
+function generateStaticQR(cardEl, value, logoUrl) {
+    const qrEl = cardEl.querySelector('.qr-code');
+    qrEl.innerHTML = '';
+    if (!value) {
+        qrEl.innerHTML = '<div style="color: #ff6b6b; padding: 40px;">No URL configured</div>';
+        return;
+    }
+    try {
+        const qrSize = getQrSize();
+        new QRCode(qrEl, {
+            text: value,
+            width: qrSize,
+            height: qrSize,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: logoUrl ? QRCode.CorrectLevel.H : QRCode.CorrectLevel.L,
+        });
+        drawLogoOnQR(qrEl, logoUrl);
+    } catch (error) {
+        console.error('Static QR generation failed:', error);
+        qrEl.innerHTML = `<div style="color: #ff6b6b; padding: 40px;">Failed to generate QR code</div>`;
+    }
 }
 
-function satsToUsd(sats) {
-    if (!cachedBtcPrice) return '';
-    const usd = (Math.abs(sats) / 1e8) * cachedBtcPrice;
-    return '$' + usd.toFixed(2);
-}
+function renderQRCards() {
+    const codes = siteSettings.qrCodes;
+    qrGridEl.innerHTML = '';
 
-function formatTimestamp(timestamp) {
-    const date = new Date(timestamp);
-    return date.toLocaleString(undefined, {
-        month: 'short', day: 'numeric',
-        hour: 'numeric', minute: '2-digit',
-        hour12: true
+    if (codes.length === 0) {
+        qrGridEl.innerHTML = '<div class="qr-empty">No payment QR codes configured. Add them in the admin panel.</div>';
+        return;
+    }
+
+    console.log(`Rendering ${codes.length} QR codes`);
+    codes.forEach((qr, index) => {
+        console.log(`QR ${index}: type=${qr.type}, label=${qr.label}, value=${qr.value}`);
+        const card = document.createElement('div');
+        card.className = 'qr-card';
+        card.dataset.index = index;
+        card.innerHTML = `
+            <h2 class="qr-label">${escapeHtml(qr.label)}</h2>
+            <div class="qr-code" id="qr-code-${index}"></div>
+            <div class="qr-info" id="qr-info-${index}"></div>
+            ${qr.hint ? `<div class="qr-hint">${escapeHtml(qr.hint)}</div>` : ''}
+        `;
+        qrGridEl.appendChild(card);
+
+        const logo = resolveLogoUrl(qr);
+        if (qr.type === 'lightning') {
+            generateLightningQR(card, logo);
+        } else {
+            generateStaticQR(card, qr.value, logo);
+        }
     });
 }
 
-function timeAgo(timestamp) {
-    const seconds = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
-    if (seconds < 60) return 'just now';
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return minutes + 'm ago';
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return hours + 'h ago';
-    const days = Math.floor(hours / 24);
-    return days + 'd ago';
+function refreshLightningInvoices() {
+    const cards = qrGridEl.querySelectorAll('.qr-card');
+    const codes = siteSettings.qrCodes;
+    cards.forEach((card, index) => {
+        if (codes[index] && codes[index].type === 'lightning') {
+            cachedBtcPrice = null; // refresh price
+            generateLightningQR(card, resolveLogoUrl(codes[index]));
+        }
+    });
 }
 
 function escapeHtml(text) {
@@ -155,108 +221,8 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function launchConfetti() {
-    const colors = siteSettings.confettiColors.split(',').map(c => c.trim()).filter(Boolean);
-    for (let i = 0; i < 200; i++) {
-        const el = document.createElement('div');
-        el.style.cssText = `
-            position:fixed;top:-10px;left:${Math.random()*100}vw;
-            width:${8+Math.random()*10}px;height:${8+Math.random()*10}px;
-            background:${colors[Math.floor(Math.random()*colors.length)]};
-            border-radius:${Math.random()>0.5?'50%':'0'};
-            pointer-events:none;z-index:9999;
-            animation:confetti-fall ${1.5+Math.random()*2}s ease-in forwards;
-            animation-delay:${Math.random()*0.5}s;opacity:0;
-        `;
-        document.body.appendChild(el);
-        el.addEventListener('animationend', () => el.remove());
-    }
-}
-
-let lastPaymentId = null;
-
-async function sendToBoostBox(payment) {
-    try {
-        await fetch('/api/boost', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'boost',
-                split: 1,
-                value_msat: payment.amount * 1000,
-                value_msat_total: payment.amount * 1000,
-                timestamp: Math.floor(payment.created / 1000),
-                sender_name: payment.sender || 'Anonymous',
-                message: payment.comment || payment.memo || '',
-                feed_name: siteSettings.brandingTitle,
-            }),
-        });
-    } catch (e) {
-        console.error('BoostBox send failed:', e);
-    }
-}
-
-function renderPaymentFeed(payments) {
-    const totalEl = document.getElementById('feed-total');
-    if (!payments || payments.length === 0) {
-        paymentFeedEl.innerHTML = '<div class="feed-empty">No payments yet</div>';
-        totalEl.textContent = '';
-        return;
-    }
-
-    const totalSats = payments.reduce((sum, p) => sum + Math.abs(p.amount), 0);
-    const totalUsd = satsToUsd(totalSats);
-    totalEl.innerHTML = `Total: <span class="total-sats">${totalSats.toLocaleString()} sats</span>${totalUsd ? ` <span class="total-usd">(${totalUsd})</span>` : ''}`;
-
-    paymentFeedEl.innerHTML = payments.map(payment => {
-        const usd = satsToUsd(payment.amount);
-        const message = payment.comment || payment.memo || '';
-        return `
-        <div class="boost-item">
-            <div class="boost-header">
-                ${payment.sender ? `<span class="boost-sender">${escapeHtml(payment.sender)}</span>` : ''}
-                <span class="boost-amount">${formatSats(payment.amount)}${usd ? ` <span class="boost-usd">(${usd})</span>` : ''}</span>
-            </div>
-            ${message ? `<div class="boost-message">${escapeHtml(message)}</div>` : ''}
-            ${payment.created ? `<div class="boost-time">${formatTimestamp(payment.created)} (${timeAgo(payment.created)})</div>` : ''}
-        </div>
-    `;
-    }).join('');
-}
-
-async function loadPaymentFeed() {
-    try {
-        const endpoint = '/api/payments';
-        const response = await fetch(endpoint);
-        if (!response.ok) {
-            const err = await response.json().catch(() => ({ error: response.statusText }));
-            const msg = err.error || JSON.stringify(err);
-            console.error('Payment API error:', response.status, msg);
-            paymentFeedEl.innerHTML = `<div class="feed-empty">Unable to load payments: ${escapeHtml(msg)}</div>`;
-            return;
-        }
-        const data = await response.json();
-        const payments = data.payments || data;
-        if (payments && payments.length > 0) {
-            const newestId = payments[0].id || payments[0].created;
-            if (lastPaymentId !== null && newestId !== lastPaymentId) {
-                launchConfetti();
-                generateInvoiceQR(); // fresh invoice for the next person
-                sendToBoostBox(payments[0]);
-            }
-            lastPaymentId = newestId;
-        }
-        renderPaymentFeed(payments);
-    } catch (error) {
-        console.error('Failed to load payment feed:', error);
-        paymentFeedEl.innerHTML = `<div class="feed-empty">Unable to load payments</div>`;
-    }
-}
-
-// Init — load settings first, then start everything
+// Init — load settings first, then render QR codes
 loadSiteSettings().then(() => {
-    generateInvoiceQR();
-    setInterval(generateInvoiceQR, INVOICE_REFRESH_INTERVAL);
-    loadPaymentFeed();
-    setInterval(loadPaymentFeed, FEED_POLL_INTERVAL);
+    renderQRCards();
+    setInterval(refreshLightningInvoices, INVOICE_REFRESH_INTERVAL);
 });

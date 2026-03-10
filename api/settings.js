@@ -14,7 +14,7 @@ const DEFAULTS = {
     backgroundColor: '#110404',
     backgroundImage: '/background.png',
     confettiColors: '#f7931a,#ffd700,#ff6600,#ffffff,#ff4500',
-    feedTitle: 'Recent Payments',
+    qrCodes: [],
 };
 
 // Secret fields only returned to authenticated requests

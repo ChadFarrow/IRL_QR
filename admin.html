@@ -42,23 +42,27 @@
                         Scan Hint Text (shown below QR code)
                         <input type="text" name="scanHintText" placeholder="Scan to pay with CashApp or any Lightning wallet">
                     </label>
-                    <label>
-                        Feed Title
-                        <input type="text" name="feedTitle" placeholder="Recent Payments">
-                    </label>
                 </fieldset>
 
                 <!-- Payment -->
                 <fieldset>
                     <legend>Payment</legend>
                     <label>
-                        Invoice Amount (USD)
+                        Lightning Invoice Amount (USD)
                         <input type="number" name="invoiceAmountUsd" step="0.01" min="0.01" placeholder="1.25">
                     </label>
                     <label>
                         NWC URL (Nostr Wallet Connect)
                         <input type="text" name="nwcUrl" placeholder="nostr+walletconnect://...">
                     </label>
+                </fieldset>
+
+                <!-- QR Codes -->
+                <fieldset>
+                    <legend>QR Codes</legend>
+                    <p class="field-help">Add payment QR codes. Use type "lightning" to auto-generate bolt11 invoices, or "static" for fixed URLs/addresses.</p>
+                    <div id="qr-codes-list"></div>
+                    <button type="button" class="btn-add" id="add-qr-btn">+ Add QR Code</button>
                 </fieldset>
 
                 <!-- Colors -->
